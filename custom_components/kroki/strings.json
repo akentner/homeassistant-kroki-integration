@@ -1,0 +1,28 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Kroki Server",
+        "description": "Configure the connection to a Kroki diagram server.",
+        "data": {
+          "server_url": "Server URL"
+        },
+        "data_description": {
+          "server_url": "The URL of the Kroki server (e.g., https://kroki.io or http://localhost:8000)."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the Kroki server. Please check the URL and try again."
+    },
+    "abort": {
+      "already_configured": "This Kroki server is already configured."
+    }
+  },
+  "services": {
+    "reload": {
+      "name": "Reload",
+      "description": "Reload Kroki image entities from YAML configuration."
+    }
+  }
+}

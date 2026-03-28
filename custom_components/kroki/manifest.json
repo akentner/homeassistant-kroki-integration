@@ -1,0 +1,12 @@
+{
+  "domain": "kroki",
+  "name": "Kroki",
+  "codeowners": ["@akentner"],
+  "config_flow": true,
+  "documentation": "https://github.com/akentner/homeassistant-kroki-integration",
+  "integration_type": "service",
+  "issue_tracker": "https://github.com/akentner/homeassistant-kroki-integration/issues",
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "version": "1.0.0"
+}
