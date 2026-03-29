@@ -1,4 +1,4 @@
-.PHONY: help install lint format check test test-verbose clean validate
+.PHONY: help install lint format check test test-verbose clean validate release
 
 VENV     := .venv
 PYTHON   := $(VENV)/bin/python
@@ -41,3 +41,6 @@ clean: ## Remove build artifacts and caches
 validate: ## Run HA hassfest and HACS validation (requires Docker)
 	pre-commit run hassfest --all-files
 	pre-commit run hacs-validate --all-files
+
+release: ## Interactive release: bump version, commit, push, create GitHub release
+	@bash scripts/release.sh
