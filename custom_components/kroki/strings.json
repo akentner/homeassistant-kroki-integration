@@ -8,7 +8,7 @@
           "server_url": "Server URL"
         },
         "data_description": {
-          "server_url": "The URL of the Kroki server (e.g., https://kroki.io or http://localhost:8000)."
+          "server_url": "The full URL of the Kroki server, including protocol and port."
         }
       },
       "reconfigure": {

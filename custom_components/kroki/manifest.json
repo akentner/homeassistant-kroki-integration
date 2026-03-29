@@ -5,8 +5,8 @@
   "config_flow": true,
   "documentation": "https://github.com/akentner/homeassistant-kroki-integration",
   "integration_type": "service",
-  "issue_tracker": "https://github.com/akentner/homeassistant-kroki-integration/issues",
   "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/akentner/homeassistant-kroki-integration/issues",
   "requirements": [],
   "version": "1.0.0"
 }

@@ -6,7 +6,6 @@ import logging
 from typing import Any
 
 import voluptuous as vol
-
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
@@ -113,9 +112,7 @@ class KrokiConfigFlow(ConfigFlow, domain=DOMAIN):
                 {
                     vol.Required(
                         CONF_SERVER_URL,
-                        default=reconfigure_entry.data.get(
-                            CONF_SERVER_URL, DEFAULT_SERVER_URL
-                        ),
+                        default=reconfigure_entry.data.get(CONF_SERVER_URL, DEFAULT_SERVER_URL),
                     ): str,
                 }
             ),
@@ -140,15 +137,11 @@ class KrokiOptionsFlow(OptionsFlow):
                 {
                     vol.Optional(
                         CONF_DEFAULT_OUTPUT_FORMAT,
-                        default=self.config_entry.options.get(
-                            CONF_DEFAULT_OUTPUT_FORMAT, DEFAULT_OUTPUT_FORMAT
-                        ),
+                        default=self.config_entry.options.get(CONF_DEFAULT_OUTPUT_FORMAT, DEFAULT_OUTPUT_FORMAT),
                     ): vol.In({"svg": "SVG", "png": "PNG"}),
                     vol.Optional(
                         CONF_CACHE_MAX_SIZE,
-                        default=self.config_entry.options.get(
-                            CONF_CACHE_MAX_SIZE, DEFAULT_CACHE_MAX_SIZE
-                        ),
+                        default=self.config_entry.options.get(CONF_CACHE_MAX_SIZE, DEFAULT_CACHE_MAX_SIZE),
                     ): vol.All(int, vol.Range(min=1, max=500)),
                 }
             ),

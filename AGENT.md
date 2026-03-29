@@ -111,7 +111,7 @@ No test suite exists yet. When adding tests:
 
 - Place in `tests/` directory
 - Mock `KrokiClient` for API calls
-- Mock `KrokiCache` for file system operations  
+- Mock `KrokiCache` for file system operations
 - Test config flow (success, connection error, duplicate)
 - Test template rendering and hash-based cache behavior
 - Test error SVG generation

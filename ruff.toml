@@ -1,0 +1,15 @@
+target-version = "py313"
+line-length = 120
+
+[lint]
+select = [
+    "B",      # flake8-bugbear
+    "E",      # pycodestyle errors
+    "F",      # pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "W",      # pycodestyle warnings
+]
+
+[lint.isort]
+known-first-party = ["custom_components.kroki"]

@@ -8,15 +8,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-
 from homeassistant.components.image import ImageEntity
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.event import async_track_template_result, TrackTemplate
+from homeassistant.helpers.event import TrackTemplate, async_track_template_result
 from homeassistant.helpers.template import Template
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from homeassistant.util import dt as dt_util
@@ -46,9 +45,7 @@ DIAGRAM_SCHEMA = vol.Schema(
         vol.Required(CONF_NAME): cv.string,
         vol.Required(CONF_DIAGRAM_TYPE): vol.In(SUPPORTED_DIAGRAM_TYPES),
         vol.Required(CONF_DIAGRAM_SOURCE): cv.template,
-        vol.Optional(CONF_OUTPUT_FORMAT, default=DEFAULT_OUTPUT_FORMAT): vol.In(
-            ["svg", "png"]
-        ),
+        vol.Optional(CONF_OUTPUT_FORMAT, default=DEFAULT_OUTPUT_FORMAT): vol.In(["svg", "png"]),
     }
 )
 
@@ -75,9 +72,10 @@ def _generate_error_svg(message: str) -> bytes:
     return svg.encode("utf-8")
 
 
-def _compute_hash(content: str) -> str:
-    """Compute SHA256 hash of a string."""
-    return hashlib.sha256(content.encode("utf-8")).hexdigest()
+def _compute_hash(content: str, output_format: str) -> str:
+    """Compute SHA256 hash of diagram content and output format."""
+    raw = f"{output_format}:{content}"
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
 async def async_setup_platform(
@@ -98,9 +96,7 @@ async def async_setup_platform(
         entry = config_entries[0]
         server_url = entry.data.get(CONF_SERVER_URL, DEFAULT_SERVER_URL)
         cache_max_size = entry.options.get(CONF_CACHE_MAX_SIZE, DEFAULT_CACHE_MAX_SIZE)
-        default_output_format = entry.options.get(
-            CONF_DEFAULT_OUTPUT_FORMAT, DEFAULT_OUTPUT_FORMAT
-        )
+        default_output_format = entry.options.get(CONF_DEFAULT_OUTPUT_FORMAT, DEFAULT_OUTPUT_FORMAT)
 
     session = async_get_clientsession(hass)
     client = KrokiClient(session, server_url)
@@ -172,9 +168,7 @@ class KrokiImageEntity(ImageEntity):
         return {
             "diagram_type": self._diagram_type,
             "output_format": self._output_format,
-            "last_rendered": (
-                self._last_rendered.isoformat() if self._last_rendered else None
-            ),
+            "last_rendered": (self._last_rendered.isoformat() if self._last_rendered else None),
             "template_hash": self._current_hash,
             "error": self._error,
             "server_url": self._client.server_url,
@@ -199,9 +193,7 @@ class KrokiImageEntity(ImageEntity):
                         result,
                     )
                     self._error = str(result)
-                    self._current_image = _generate_error_svg(
-                        f"Template error: {result}"
-                    )
+                    self._current_image = _generate_error_svg(f"Template error: {result}")
                     self._attr_content_type = "image/svg+xml"
                     self._attr_image_last_updated = dt_util.utcnow()
                     self.async_write_ha_state()
@@ -230,7 +222,7 @@ class KrokiImageEntity(ImageEntity):
 
         Checks the cache first, then calls the Kroki API if needed.
         """
-        content_hash = _compute_hash(rendered_source)
+        content_hash = _compute_hash(rendered_source, self._output_format)
 
         # Skip if hash hasn't changed
         if content_hash == self._current_hash and self._current_image is not None:
@@ -282,9 +274,7 @@ class KrokiImageEntity(ImageEntity):
         self._current_hash = content_hash
         self._last_rendered = dt_util.utcnow()
         self._error = None
-        self._attr_content_type = CONTENT_TYPE_MAP.get(
-            self._output_format, "image/svg+xml"
-        )
+        self._attr_content_type = CONTENT_TYPE_MAP.get(self._output_format, "image/svg+xml")
         self._attr_image_last_updated = dt_util.utcnow()
         self.async_write_ha_state()
 

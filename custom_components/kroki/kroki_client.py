@@ -101,10 +101,6 @@ class KrokiClient:
                 )
                 raise KrokiRenderError(f"Kroki returned HTTP {response.status}: {body}")
         except aiohttp.ClientError as err:
-            raise KrokiConnectionError(
-                f"Cannot connect to Kroki server at {self._server_url}: {err}"
-            ) from err
+            raise KrokiConnectionError(f"Cannot connect to Kroki server at {self._server_url}: {err}") from err
         except TimeoutError as err:
-            raise KrokiConnectionError(
-                f"Timeout connecting to Kroki server at {self._server_url}"
-            ) from err
+            raise KrokiConnectionError(f"Timeout connecting to Kroki server at {self._server_url}") from err
