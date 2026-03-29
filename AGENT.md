@@ -11,9 +11,9 @@ Config Flow (UI)                 YAML Platform Config
     │                                   │
     ▼                                   ▼
 ┌─────────────────┐         ┌──────────────────────┐
-│ Config Entry     │         │ Image Entities        │
-│ (Server URL,     │◄────────│ (Template, Diagram    │
-│  Validierung)    │         │  Type, Output Format) │
+│ Config Entry    │         │ Image Entities       │
+│ (Server URL,    │◄────────│ (Template, Diagram   │
+│  Validierung)   │         │  Type, Output Format)│
 └─────────────────┘         └──────────────────────┘
                                    │
                           Template Rendering

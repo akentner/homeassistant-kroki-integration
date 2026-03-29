@@ -121,7 +121,7 @@ This integration uses a **hybrid configuration** approach:
   SHA256 hash of rendered output
           │
     ┌─────┴─────┐
-    │ Cache hit  │ Cache miss
+    │ Cache hit │ Cache miss
     │ → from    │ → POST to Kroki API
     │   disk    │ → save to cache
     └───────────┘
