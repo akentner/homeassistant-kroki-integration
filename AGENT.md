@@ -98,20 +98,48 @@ custom_components/kroki/
 - Type hints on all public methods
 - Use `async_get_clientsession(hass)` for HTTP (shared aiohttp session)
 - Constants in `const.py`, never hardcoded
-- Entity unique IDs: `kroki_{slugified_name}`
+- Entity unique IDs: `kroki_{slugified_name}` by default, overridable via `unique_id` in YAML
+- Entity ID: overridable via `default_entity_id` in YAML (sets `image.{slugified_value}`)
 
 ## Dependencies
 
 - No external pip requirements (uses HA's built-in `aiohttp`, `voluptuous`, `jinja2`)
 - Minimum HA version: 2024.7.0 (for Image platform stability)
+- Dev dependencies: `pytest-homeassistant-custom-component`, `ruff`, `pre-commit`
+
+## Build
+
+The project uses a `Makefile` for all development tasks. Run `make help` for available targets.
 
 ## Testing
 
-No test suite exists yet. When adding tests:
+Tests live in `tests/` and use `pytest-homeassistant-custom-component`.
 
-- Place in `tests/` directory
-- Mock `KrokiClient` for API calls
-- Mock `KrokiCache` for file system operations
-- Test config flow (success, connection error, duplicate)
-- Test template rendering and hash-based cache behavior
-- Test error SVG generation
+```bash
+make test            # Run all tests
+make test-verbose    # Run with verbose output
+make lint            # Run ruff linter
+make format          # Auto-format and fix lint issues
+make check           # CI-style check (no changes)
+make validate        # Hassfest + HACS validation (Docker)
+```
+
+### Test structure
+
+```
+tests/
+├── __init__.py
+├── conftest.py            # Shared fixtures (hass_config_dir, cache clearing, mock clients)
+├── test_config_flow.py    # Config flow, reconfigure, options flow (9 tests)
+├── test_init.py           # Setup/unload entry, reload service (4 tests)
+├── test_kroki_client.py   # Health check, render diagram, error handling (15 tests)
+├── test_cache.py          # LRU cache init, put/get, eviction, clear (18 tests)
+└── test_image.py          # Entity init, unique_id, template tracking, rendering, platform setup (46 tests)
+```
+
+### Test infrastructure notes
+
+- `conftest.py` provides a `hass_config_dir` fixture pointing to the project root so HA discovers `custom_components/kroki/`
+- An autouse `clear_custom_components_cache` fixture clears `DATA_CUSTOM_COMPONENTS` before each test (the test helper caches an empty dict during bootstrap)
+- Tests calling `_async_update_image` directly must mock `async_write_ha_state` (entity is not fully registered with HA)
+- Config flow tests use `mock_setup_entry` to skip real `async_setup_entry`, so `hass.data[DOMAIN]` is not initialized during those tests

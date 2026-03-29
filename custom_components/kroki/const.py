@@ -12,6 +12,8 @@ CONF_DIAGRAM_TYPE = "diagram_type"
 CONF_DIAGRAM_SOURCE = "diagram_source"
 CONF_OUTPUT_FORMAT = "output_format"
 CONF_DIAGRAMS = "diagrams"
+CONF_UNIQUE_ID = "unique_id"
+CONF_DEFAULT_ENTITY_ID = "default_entity_id"
 
 # Options keys (config entry options)
 CONF_CACHE_MAX_SIZE = "cache_max_size"

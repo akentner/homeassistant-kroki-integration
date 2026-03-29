@@ -87,6 +87,8 @@ After editing YAML, go to **Developer Tools > YAML > Reload Kroki image entities
 | `diagram_type` | Yes | -- | Kroki diagram type (see below) |
 | `diagram_source` | Yes | -- | Jinja2 template for the diagram source |
 | `output_format` | No | `svg` | Output format: `svg` or `png` |
+| `unique_id` | No | `kroki_{name}` | Explicit unique ID for the entity |
+| `default_entity_id` | No | -- | Override the default entity ID (e.g. `network_topology` → `image.network_topology`) |
 
 ### Supported diagram types
 
@@ -165,6 +167,31 @@ Error types:
 - **Template error:** Invalid Jinja2 syntax or missing entities
 - **Connection error:** Kroki server unreachable or timeout
 - **Render error:** Kroki returns an error (e.g., invalid diagram syntax)
+
+## Development
+
+```bash
+# Set up virtual environment and install dependencies
+make install
+
+# Run tests
+make test
+
+# Run linter
+make lint
+
+# Format code (auto-fix)
+make format
+
+# Check formatting and linting (CI-style, no changes)
+make check
+
+# Run hassfest and HACS validation (requires Docker)
+make validate
+
+# Show all available targets
+make help
+```
 
 ## Self-hosted Kroki
 

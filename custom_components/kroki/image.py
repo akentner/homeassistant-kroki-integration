@@ -23,12 +23,14 @@ from homeassistant.util import dt as dt_util
 from .cache import KrokiCache
 from .const import (
     CONF_CACHE_MAX_SIZE,
+    CONF_DEFAULT_ENTITY_ID,
     CONF_DEFAULT_OUTPUT_FORMAT,
     CONF_DIAGRAM_SOURCE,
     CONF_DIAGRAM_TYPE,
     CONF_DIAGRAMS,
     CONF_OUTPUT_FORMAT,
     CONF_SERVER_URL,
+    CONF_UNIQUE_ID,
     CONTENT_TYPE_MAP,
     DEFAULT_CACHE_MAX_SIZE,
     DEFAULT_OUTPUT_FORMAT,
@@ -46,6 +48,8 @@ DIAGRAM_SCHEMA = vol.Schema(
         vol.Required(CONF_DIAGRAM_TYPE): vol.In(SUPPORTED_DIAGRAM_TYPES),
         vol.Required(CONF_DIAGRAM_SOURCE): cv.template,
         vol.Optional(CONF_OUTPUT_FORMAT, default=DEFAULT_OUTPUT_FORMAT): vol.In(["svg", "png"]),
+        vol.Optional(CONF_UNIQUE_ID): cv.string,
+        vol.Optional(CONF_DEFAULT_ENTITY_ID): cv.string,
     }
 )
 
@@ -118,6 +122,8 @@ async def async_setup_platform(
                 diagram_type=diagram_config[CONF_DIAGRAM_TYPE],
                 diagram_source_template=diagram_config[CONF_DIAGRAM_SOURCE],
                 output_format=output_format,
+                unique_id=diagram_config.get(CONF_UNIQUE_ID),
+                default_entity_id=diagram_config.get(CONF_DEFAULT_ENTITY_ID),
             )
         )
 
@@ -138,6 +144,8 @@ class KrokiImageEntity(ImageEntity):
         diagram_type: str,
         diagram_source_template: Template,
         output_format: str,
+        unique_id: str | None = None,
+        default_entity_id: str | None = None,
     ) -> None:
         """Initialize the Kroki image entity."""
         super().__init__(hass)
@@ -159,8 +167,12 @@ class KrokiImageEntity(ImageEntity):
         # Content type based on output format
         self._attr_content_type = CONTENT_TYPE_MAP.get(output_format, "image/svg+xml")
 
-        # Generate unique ID from name (slugified)
-        self._attr_unique_id = f"kroki_{cv.slugify(name)}"
+        # Unique ID: use explicit value from YAML, or generate from name
+        self._attr_unique_id = unique_id if unique_id else f"kroki_{cv.slugify(name)}"
+
+        # Default entity ID: set suggested_object_id if provided
+        if default_entity_id:
+            self.entity_id = f"image.{cv.slugify(default_entity_id)}"
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
