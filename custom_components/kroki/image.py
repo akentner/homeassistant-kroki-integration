@@ -170,9 +170,11 @@ class KrokiImageEntity(ImageEntity):
         # Unique ID: use explicit value from YAML, or generate from name
         self._attr_unique_id = unique_id if unique_id else f"kroki_{cv.slugify(name)}"
 
-        # Default entity ID: set suggested_object_id if provided
+        # Default entity ID: must be provided as "image.<object_id>"
         if default_entity_id:
-            self.entity_id = f"image.{cv.slugify(default_entity_id)}"
+            if not default_entity_id.startswith("image."):
+                raise ValueError(f"default_entity_id must start with 'image.' (got: '{default_entity_id}')")
+            self.entity_id = f"image.{cv.slugify(default_entity_id[len('image.') :])}"
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:

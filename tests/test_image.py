@@ -183,14 +183,28 @@ class TestKrokiImageEntityInit:
         assert entity.unique_id == "custom_unique_id"
 
     def test_default_entity_id_sets_entity_id(self, hass: HomeAssistant, mock_client: MagicMock, cache: KrokiCache):
-        """Test that default_entity_id sets the entity_id."""
-        entity = _make_entity(hass, mock_client, cache, default_entity_id="my_custom_id")
+        """Test that default_entity_id sets the entity_id when given with domain prefix."""
+        entity = _make_entity(hass, mock_client, cache, default_entity_id="image.my_custom_id")
         assert entity.entity_id == "image.my_custom_id"
 
     def test_default_entity_id_slugified(self, hass: HomeAssistant, mock_client: MagicMock, cache: KrokiCache):
-        """Test that default_entity_id is slugified."""
-        entity = _make_entity(hass, mock_client, cache, default_entity_id="My Custom ID")
+        """Test that the object_id part of default_entity_id is slugified."""
+        entity = _make_entity(hass, mock_client, cache, default_entity_id="image.My Custom ID")
         assert entity.entity_id == "image.my_custom_id"
+
+    def test_default_entity_id_wrong_domain_raises(
+        self, hass: HomeAssistant, mock_client: MagicMock, cache: KrokiCache
+    ):
+        """Test that default_entity_id without 'image.' prefix raises ValueError."""
+        with pytest.raises(ValueError, match="must start with 'image.'"):
+            _make_entity(hass, mock_client, cache, default_entity_id="my_custom_id")
+
+    def test_default_entity_id_wrong_domain_sensor_raises(
+        self, hass: HomeAssistant, mock_client: MagicMock, cache: KrokiCache
+    ):
+        """Test that default_entity_id with a wrong domain raises ValueError."""
+        with pytest.raises(ValueError, match="must start with 'image.'"):
+            _make_entity(hass, mock_client, cache, default_entity_id="sensor.my_diagram")
 
     def test_no_default_entity_id(self, hass: HomeAssistant, mock_client: MagicMock, cache: KrokiCache):
         """Test that entity_id is not explicitly set when default_entity_id is not given."""
@@ -715,7 +729,7 @@ class TestAsyncSetupPlatform:
                     CONF_DIAGRAM_TYPE: "mermaid",
                     CONF_DIAGRAM_SOURCE: tpl,
                     CONF_OUTPUT_FORMAT: "svg",
-                    CONF_DEFAULT_ENTITY_ID: "network_topology",
+                    CONF_DEFAULT_ENTITY_ID: "image.network_topology",
                 },
             ],
         }
