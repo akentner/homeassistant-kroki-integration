@@ -5,6 +5,8 @@ Generate dynamic diagram images from [Kroki](https://kroki.io) using Home Assist
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 [![Validate](https://github.com/akentner/homeassistant-kroki-integration/actions/workflows/validate.yml/badge.svg)](https://github.com/akentner/homeassistant-kroki-integration/actions/workflows/validate.yml)
 
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=akentner&repository=homeassistant-kroki-integration&category=integration)
+
 ## Features
 
 - **Template-based diagrams** -- Use Jinja2 templates with entity states to generate dynamic diagrams
@@ -19,11 +21,12 @@ Generate dynamic diagram images from [Kroki](https://kroki.io) using Home Assist
 
 ### HACS (Recommended)
 
-1. Open HACS in your Home Assistant instance
-2. Click the three dots in the top right corner and select **Custom repositories**
-3. Add `https://github.com/akentner/homeassistant-kroki-integration` with category **Integration**
-4. Search for "Kroki" and install it
-5. Restart Home Assistant
+1. Click the button above or:
+   1. Open HACS in your Home Assistant instance
+   2. Click the three dots in the top right corner and select **Custom repositories**
+   3. Add `https://github.com/akentner/homeassistant-kroki-integration` with category **Integration**
+2. Search for "Kroki" and install it
+3. Restart Home Assistant
 
 ### Manual
 
