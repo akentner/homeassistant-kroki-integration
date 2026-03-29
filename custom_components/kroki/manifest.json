@@ -1,7 +1,9 @@
 {
   "domain": "kroki",
   "name": "Kroki",
-  "codeowners": ["@akentner"],
+  "codeowners": [
+    "@akentner"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/akentner/homeassistant-kroki-integration",
   "integration_type": "service",
