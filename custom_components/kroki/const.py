@@ -6,12 +6,16 @@ DOMAIN = "kroki"
 
 PLATFORMS = [Platform.IMAGE]
 
-# Config keys
+# Config keys (config entry data)
 CONF_SERVER_URL = "server_url"
 CONF_DIAGRAM_TYPE = "diagram_type"
 CONF_DIAGRAM_SOURCE = "diagram_source"
 CONF_OUTPUT_FORMAT = "output_format"
 CONF_DIAGRAMS = "diagrams"
+
+# Options keys (config entry options)
+CONF_CACHE_MAX_SIZE = "cache_max_size"
+CONF_DEFAULT_OUTPUT_FORMAT = "default_output_format"
 
 # Defaults
 DEFAULT_SERVER_URL = "https://kroki.io"

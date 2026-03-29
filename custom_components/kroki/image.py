@@ -23,6 +23,8 @@ from homeassistant.util import dt as dt_util
 
 from .cache import KrokiCache
 from .const import (
+    CONF_CACHE_MAX_SIZE,
+    CONF_DEFAULT_OUTPUT_FORMAT,
     CONF_DIAGRAM_SOURCE,
     CONF_DIAGRAM_TYPE,
     CONF_DIAGRAMS,
@@ -85,22 +87,32 @@ async def async_setup_platform(
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
     """Set up Kroki image entities from YAML configuration."""
-    # Determine which Kroki server to use
-    # Use the first configured config entry, or fall back to default
+    # Determine which Kroki server and options to use
+    # Use the first configured config entry, or fall back to defaults
     server_url = DEFAULT_SERVER_URL
+    cache_max_size = DEFAULT_CACHE_MAX_SIZE
+    default_output_format = DEFAULT_OUTPUT_FORMAT
+
     config_entries = hass.config_entries.async_entries(DOMAIN)
     if config_entries:
-        server_url = config_entries[0].data.get(CONF_SERVER_URL, DEFAULT_SERVER_URL)
+        entry = config_entries[0]
+        server_url = entry.data.get(CONF_SERVER_URL, DEFAULT_SERVER_URL)
+        cache_max_size = entry.options.get(CONF_CACHE_MAX_SIZE, DEFAULT_CACHE_MAX_SIZE)
+        default_output_format = entry.options.get(
+            CONF_DEFAULT_OUTPUT_FORMAT, DEFAULT_OUTPUT_FORMAT
+        )
 
     session = async_get_clientsession(hass)
     client = KrokiClient(session, server_url)
 
     # Set up the cache
     cache_dir = Path(hass.config.path(".storage")) / DOMAIN
-    cache = KrokiCache(cache_dir, max_size=DEFAULT_CACHE_MAX_SIZE)
+    cache = KrokiCache(cache_dir, max_size=cache_max_size)
 
     entities: list[KrokiImageEntity] = []
     for diagram_config in config[CONF_DIAGRAMS]:
+        # Use diagram-specific output format, or fall back to entry option
+        output_format = diagram_config.get(CONF_OUTPUT_FORMAT, default_output_format)
         entities.append(
             KrokiImageEntity(
                 hass=hass,
@@ -109,7 +121,7 @@ async def async_setup_platform(
                 name=diagram_config[CONF_NAME],
                 diagram_type=diagram_config[CONF_DIAGRAM_TYPE],
                 diagram_source_template=diagram_config[CONF_DIAGRAM_SOURCE],
-                output_format=diagram_config[CONF_OUTPUT_FORMAT],
+                output_format=output_format,
             )
         )
 
