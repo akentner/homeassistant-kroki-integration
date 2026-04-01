@@ -246,3 +246,158 @@ async def test_options_flow_shows_current_values(hass: HomeAssistant, mock_setup
     # Re-open options flow - should show previously saved values
     result = await hass.config_entries.options.async_init(entry.entry_id)
     assert result["type"] is FlowResultType.FORM
+
+
+# ===== Subentry flow tests =====
+
+
+async def _create_server_entry(hass: HomeAssistant) -> config_entries.ConfigEntry:
+    """Helper to create a server config entry for subentry tests."""
+    result = await hass.config_entries.flow.async_init(DOMAIN, context={"source": config_entries.SOURCE_USER})
+    with patch(PATCH_CLIENT) as mock_client_cls:
+        mock_client_cls.return_value.async_health_check = AsyncMock(return_value=True)
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            user_input={CONF_SERVER_URL: "https://kroki.example.com"},
+        )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    return result["result"]
+
+
+async def test_subentry_add_flow_success(hass: HomeAssistant, mock_setup_entry) -> None:
+    """Test successful diagram subentry creation."""
+    from custom_components.kroki.const import CONF_DIAGRAM_SOURCE, CONF_DIAGRAM_TYPE, CONF_OUTPUT_FORMAT
+
+    entry = await _create_server_entry(hass)
+
+    # Start subentry add flow
+    result = await hass.config_entries.subentries.async_init(
+        (entry.entry_id, "diagram"),
+        context={"source": config_entries.SOURCE_USER},
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "user"
+
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"],
+        user_input={
+            "name": "My Diagram",
+            CONF_DIAGRAM_TYPE: "mermaid",
+            CONF_DIAGRAM_SOURCE: "graph TD\nA-->B",
+            CONF_OUTPUT_FORMAT: "svg",
+        },
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+
+    # Verify subentry was created with correct data
+    assert len(entry.subentries) == 1
+    subentry = list(entry.subentries.values())[0]
+    assert subentry.title == "My Diagram"
+    assert subentry.data[CONF_DIAGRAM_TYPE] == "mermaid"
+    assert subentry.data[CONF_DIAGRAM_SOURCE] == "graph TD\nA-->B"
+
+
+async def test_subentry_add_flow_invalid_template(hass: HomeAssistant, mock_setup_entry) -> None:
+    """Test that invalid Jinja2 syntax raises a schema validation error for diagram_source.
+
+    TemplateSelector validates syntax via cv.template at the schema level, which
+    raises InvalidData rather than returning a FORM with errors. The field path
+    in the schema error is 'diagram_source'.
+    """
+    from homeassistant.data_entry_flow import InvalidData
+
+    from custom_components.kroki.const import CONF_DIAGRAM_SOURCE, CONF_DIAGRAM_TYPE, CONF_OUTPUT_FORMAT
+
+    entry = await _create_server_entry(hass)
+
+    result = await hass.config_entries.subentries.async_init(
+        (entry.entry_id, "diagram"),
+        context={"source": config_entries.SOURCE_USER},
+    )
+    # The TemplateSelector validates template syntax; invalid input raises InvalidData
+    with pytest.raises(InvalidData) as exc_info:
+        await hass.config_entries.subentries.async_configure(
+            result["flow_id"],
+            user_input={
+                "name": "Bad Diagram",
+                CONF_DIAGRAM_TYPE: "mermaid",
+                CONF_DIAGRAM_SOURCE: "{{ invalid jinja {{ }}",
+                CONF_OUTPUT_FORMAT: "svg",
+            },
+        )
+    # Verify the error is associated with the diagram_source field
+    assert "diagram_source" in exc_info.value.schema_errors
+
+
+async def test_subentry_add_flow_valid_template_nonexistent_entity(hass: HomeAssistant, mock_setup_entry) -> None:
+    """Test that a valid template referencing a non-existent entity is accepted (D-03)."""
+    from custom_components.kroki.const import CONF_DIAGRAM_SOURCE, CONF_DIAGRAM_TYPE, CONF_OUTPUT_FORMAT
+
+    entry = await _create_server_entry(hass)
+
+    result = await hass.config_entries.subentries.async_init(
+        (entry.entry_id, "diagram"),
+        context={"source": config_entries.SOURCE_USER},
+    )
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"],
+        user_input={
+            "name": "Template Diagram",
+            CONF_DIAGRAM_TYPE: "mermaid",
+            CONF_DIAGRAM_SOURCE: "graph TD\nA[{{ states('sensor.nonexistent') }}]-->B",
+            CONF_OUTPUT_FORMAT: "svg",
+        },
+    )
+    # Template is syntactically valid — must be accepted even if entity doesn't exist
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+
+
+async def test_subentry_reconfigure_flow(hass: HomeAssistant, mock_setup_entry) -> None:
+    """Test reconfiguring an existing subentry."""
+    from custom_components.kroki.const import CONF_DIAGRAM_SOURCE, CONF_DIAGRAM_TYPE, CONF_OUTPUT_FORMAT
+
+    entry = await _create_server_entry(hass)
+
+    # Add a subentry
+    result = await hass.config_entries.subentries.async_init(
+        (entry.entry_id, "diagram"),
+        context={"source": config_entries.SOURCE_USER},
+    )
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"],
+        user_input={
+            "name": "Original Name",
+            CONF_DIAGRAM_TYPE: "mermaid",
+            CONF_DIAGRAM_SOURCE: "graph TD\nA-->B",
+            CONF_OUTPUT_FORMAT: "svg",
+        },
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    subentry_id = list(entry.subentries.keys())[0]
+
+    # Reconfigure the subentry directly via the subentries flow manager
+    result = await hass.config_entries.subentries.async_init(
+        (entry.entry_id, "diagram"),
+        context={"source": config_entries.SOURCE_RECONFIGURE, "subentry_id": subentry_id},
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "reconfigure"
+
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"],
+        user_input={
+            "name": "Renamed Diagram",
+            CONF_DIAGRAM_TYPE: "plantuml",
+            CONF_DIAGRAM_SOURCE: "@startuml\nA -> B\n@enduml",
+            CONF_OUTPUT_FORMAT: "png",
+        },
+    )
+    assert result["type"] is FlowResultType.ABORT
+    assert result["reason"] == "reconfigure_successful"
+
+    # Verify subentry was updated
+    updated_subentry = entry.subentries[subentry_id]
+    assert updated_subentry.title == "Renamed Diagram"
+    assert updated_subentry.data[CONF_DIAGRAM_TYPE] == "plantuml"
+    # subentry_id must NOT change (Pitfall 5, D-08)
+    assert subentry_id in entry.subentries
