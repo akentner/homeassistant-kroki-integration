@@ -49,7 +49,11 @@ Plans:
   2. User sees a split-pane layout with a code editor (monospace textarea) on one side and a live diagram preview on the other
   3. User can select a diagram type from a dropdown and the preview updates accordingly
   4. User can browse available entity IDs and click to insert them into the editor source
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 02-01-PLAN.md — Backend: panel.py + ws_api.py + __init__.py wiring (PANEL-01, PANEL-04)
+- [ ] 02-02-PLAN.md — Frontend: kroki-panel.js LitElement webcomponent (PANEL-02, PANEL-03, PANEL-05)
+- [ ] 02-03-PLAN.md — Tests: WebSocket API + panel registration + full suite green
 **UI hint**: yes
 
 ### Phase 3: Service Extension
@@ -68,6 +72,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Subentry CRUD | 3/4 | In Progress|  |
-| 2. Custom Panel | 0/TBD | Not started | - |
+| 1. Subentry CRUD | 4/4 | Complete |  |
+| 2. Custom Panel | 0/3 | Not started | - |
 | 3. Service Extension | 0/TBD | Not started | - |
