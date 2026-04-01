@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: planning
-stopped_at: Phase 1 context gathered
-last_updated: "2026-04-01T21:21:10.053Z"
-last_activity: 2026-04-01 — Roadmap created for milestone v2.0
+status: executing
+stopped_at: Completed 01-02-PLAN.md
+last_updated: "2026-04-01T22:48:30.899Z"
+last_activity: 2026-04-01
 progress:
   total_phases: 3
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_plans: 4
+  completed_plans: 1
   percent: 0
 ---
 
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-01)
 
 **Core value:** Kroki diagram entities fully manageable via HA GUI — no YAML editing required
-**Current focus:** Phase 1 — Subentry CRUD
+**Current focus:** Phase 01 — subentry-crud
 
 ## Current Position
 
-Phase: 1 of 3 (Subentry CRUD)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-04-01 — Roadmap created for milestone v2.0
+Phase: 01 (subentry-crud) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-04-01
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01-subentry-crud P02 | 2m 27s | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -64,6 +65,8 @@ Recent decisions affecting current work:
 - Pre-roadmap: async_forward_entry_setups must be added to __init__.py; async_unload_platforms must mirror it
 - Pre-roadmap: YAML path (async_setup_platform) stays untouched; dual-path coexistence in image.py
 - Pre-roadmap: Panel uses LitElement + textarea (no CodeMirror for MVP); cache_headers=False
+- [Phase 01-subentry-crud]: Template validation uses Template(source, hass).ensure_valid() — rejects syntax errors, accepts entity-reference templates
+- [Phase 01-subentry-crud]: Output format 'Server Default' stores 'server_default' string in subentry data — entity resolves effective format at setup time
 
 ### Pending Todos
 
@@ -76,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T21:21:10.040Z
-Stopped at: Phase 1 context gathered
-Resume file: .planning/phases/01-subentry-crud/01-CONTEXT.md
+Last session: 2026-04-01T22:48:30.883Z
+Stopped at: Completed 01-02-PLAN.md
+Resume file: None
