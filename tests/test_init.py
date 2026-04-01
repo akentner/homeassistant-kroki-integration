@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from homeassistant.config_entries import ConfigEntryState
@@ -13,6 +13,16 @@ from custom_components.kroki.const import (
     CONF_SERVER_URL,
     DOMAIN,
 )
+
+
+@pytest.fixture(autouse=True)
+def mock_panel_setup():
+    """Mock panel and WebSocket API setup to avoid frontend dependency in tests."""
+    with (
+        patch("custom_components.kroki.async_setup_panel", new=AsyncMock(return_value=None)),
+        patch("custom_components.kroki.async_setup_ws_api", new=MagicMock(return_value=None)),
+    ):
+        yield
 
 
 @pytest.fixture

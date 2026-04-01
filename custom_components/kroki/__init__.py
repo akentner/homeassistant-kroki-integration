@@ -15,6 +15,8 @@ from homeassistant.helpers.typing import ConfigType
 from .cache import KrokiCache
 from .const import CONF_CACHE_MAX_SIZE, CONF_SERVER_URL, DEFAULT_CACHE_MAX_SIZE, DEFAULT_SERVER_URL, DOMAIN, PLATFORMS
 from .kroki_client import KrokiClient
+from .panel import async_setup_panel
+from .ws_api import async_setup_ws_api
 
 CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
 
@@ -27,6 +29,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Kroki integration from YAML."""
     # Register the reload service so it appears in Developer Tools
     await async_setup_reload_service(hass, DOMAIN, PLATFORMS)
+    await async_setup_panel(hass)
+    async_setup_ws_api(hass)
     return True
 
 
