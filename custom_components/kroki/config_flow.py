@@ -10,19 +10,35 @@ from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
     ConfigFlowResult,
+    ConfigSubentryFlow,
     OptionsFlow,
+    SubentryFlowResult,
 )
+from homeassistant.const import CONF_NAME
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.selector import (
+    SelectSelector,
+    SelectSelectorConfig,
+    TemplateSelector,
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
+)
+from homeassistant.helpers.template import Template, TemplateError
 
 from .const import (
     CONF_CACHE_MAX_SIZE,
     CONF_DEFAULT_OUTPUT_FORMAT,
+    CONF_DIAGRAM_SOURCE,
+    CONF_DIAGRAM_TYPE,
+    CONF_OUTPUT_FORMAT,
     CONF_SERVER_URL,
     DEFAULT_CACHE_MAX_SIZE,
     DEFAULT_OUTPUT_FORMAT,
     DEFAULT_SERVER_URL,
     DOMAIN,
+    SUPPORTED_DIAGRAM_TYPES,
 )
 from .kroki_client import KrokiClient
 
@@ -39,7 +55,7 @@ class KrokiConfigFlow(ConfigFlow, domain=DOMAIN):
     """Handle a config flow for Kroki."""
 
     VERSION = 1
-    MINOR_VERSION = 1
+    MINOR_VERSION = 2
 
     @staticmethod
     @callback
@@ -48,6 +64,12 @@ class KrokiConfigFlow(ConfigFlow, domain=DOMAIN):
     ) -> KrokiOptionsFlow:
         """Get the options flow for this handler."""
         return KrokiOptionsFlow()
+
+    @classmethod
+    @callback
+    def async_get_supported_subentry_types(cls, config_entry: ConfigEntry) -> dict[str, type[ConfigSubentryFlow]]:
+        """Return supported subentry types."""
+        return {"diagram": DiagramSubentryFlowHandler}
 
     async def async_step_user(
         self,
