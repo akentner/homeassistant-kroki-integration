@@ -12,7 +12,7 @@
 
 - [x] **CRUD-01**: User kann ein Diagramm-Subentry unter einem Kroki-Server-Config-Entry anlegen
 - [x] **CRUD-02**: User kann ein bestehendes Diagramm-Subentry bearbeiten (Name, Typ, Source, Format)
-- [ ] **CRUD-03**: User kann ein Diagramm-Subentry löschen; die zugehörige Image-Entität verschwindet
+- [x] **CRUD-03**: User kann ein Diagramm-Subentry löschen; die zugehörige Image-Entität verschwindet
 - [x] **CRUD-04**: Formular zeigt Inline-Fehler bei ungültigen Eingaben (z.B. unbekannter Typ, Serverfehler)
 - [x] **CRUD-05**: Alle UI-Labels, Beschreibungen und Fehler sind in `strings.json` vollständig hinterlegt
 
@@ -72,7 +72,7 @@
 |--------|-------|--------|
 | CRUD-01 | Phase 1 | Complete |
 | CRUD-02 | Phase 1 | Complete |
-| CRUD-03 | Phase 1 | Pending |
+| CRUD-03 | Phase 1 | Complete |
 | CRUD-04 | Phase 1 | Complete |
 | CRUD-05 | Phase 1 | Complete |
 | CFG-01 | Phase 1 | Complete |
