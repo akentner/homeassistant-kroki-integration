@@ -6,10 +6,14 @@ import pathlib
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from homeassistant.config_entries import ConfigSubentry
 from homeassistant.core import HomeAssistant
 from homeassistant.loader import DATA_CUSTOM_COMPONENTS
 
 from custom_components.kroki.const import (
+    CONF_DIAGRAM_SOURCE,
+    CONF_DIAGRAM_TYPE,
+    CONF_OUTPUT_FORMAT,
     DEFAULT_SERVER_URL,
 )
 
@@ -51,3 +55,19 @@ def mock_kroki_client_unhealthy():
     client.server_url = DEFAULT_SERVER_URL
     client.async_health_check = AsyncMock(return_value=False)
     return client
+
+
+@pytest.fixture
+def mock_config_subentry() -> ConfigSubentry:
+    """Return a ConfigSubentry for diagram testing."""
+    return ConfigSubentry(
+        subentry_id="01JTEST00000000000000000001",
+        subentry_type="diagram",
+        title="Test Diagram",
+        data={
+            CONF_DIAGRAM_TYPE: "mermaid",
+            CONF_DIAGRAM_SOURCE: "graph TD\nA-->B",
+            CONF_OUTPUT_FORMAT: "svg",
+        },
+        unique_id=None,
+    )
