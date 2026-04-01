@@ -295,6 +295,32 @@ class KrokiImageEntity(ImageEntity):
             self._unsub_track.async_remove()
             self._unsub_track = None
 
+    async def async_force_render(self) -> None:
+        """Force an immediate re-render, bypassing hash dedup and disk cache.
+
+        Clears in-memory hash, evicts the disk cache entry for the current hash
+        (if any), clears the current image, and triggers a fresh template
+        evaluation cycle via the template tracker.
+
+        Per D-04: disk eviction is skipped silently if no hash is known yet.
+        Per D-08: logs at DEBUG level on each call.
+        """
+        _LOGGER.debug("force_render called for %s", self.entity_id)
+
+        old_hash = self._current_hash
+
+        # Wipe in-memory state (D-03 steps 1 and 3)
+        self._current_hash = None
+        self._current_image = None
+
+        # Evict disk cache entry only if a hash is known (D-04)
+        if old_hash is not None:
+            self._cache.evict(old_hash)
+
+        # Trigger fresh template evaluation and re-render cycle (D-03 step 4)
+        if self._unsub_track is not None:
+            self._unsub_track.async_refresh()
+
     async def _async_update_image(self, rendered_source: str) -> None:
         """Update the image from the rendered template source.
 
