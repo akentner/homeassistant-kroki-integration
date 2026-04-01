@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 01-subentry-crud 01-01-PLAN.md
-last_updated: "2026-04-01T22:49:20.732Z"
+stopped_at: Completed 01-subentry-crud 01-03-PLAN.md
+last_updated: "2026-04-01T22:54:41.140Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 4
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 ## Current Position
 
 Phase: 01 (subentry-crud) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-04-01
 
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-subentry-crud P02 | 2m 27s | 2 tasks | 2 files |
 | Phase 01-subentry-crud P01 | 208 | 2 tasks | 3 files |
+| Phase 01-subentry-crud P03 | 169 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,8 @@ Recent decisions affecting current work:
 - [Phase 01-subentry-crud]: Template validation uses Template(source, hass).ensure_valid() — rejects syntax errors, accepts entity-reference templates
 - [Phase 01-subentry-crud]: Output format 'Server Default' stores 'server_default' string in subentry data — entity resolves effective format at setup time
 - [Phase 01-subentry-crud]: Patch ConfigEntries class-level methods in tests to isolate __init__.py from image platform (no async_setup_entry yet)
+- [Phase 01-subentry-crud]: async_add_entities called per-entity with config_subentry_id=subentry.subentry_id to link entities to their subentry in HA entity registry
+- [Phase 01-subentry-crud]: from_subentry uses unique_id=subentry.subentry_id (stable ULID) — never derived from name, preventing entity registry collisions with YAML entities (D-08, Pitfall 1)
 
 ### Pending Todos
 
@@ -81,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T22:49:20.716Z
-Stopped at: Completed 01-subentry-crud 01-01-PLAN.md
+Last session: 2026-04-01T22:54:41.124Z
+Stopped at: Completed 01-subentry-crud 01-03-PLAN.md
 Resume file: None
