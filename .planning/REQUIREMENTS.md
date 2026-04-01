@@ -68,13 +68,23 @@
 
 ## Traceability
 
-_Wird vom Roadmapper befüllt._
-
-| REQ-ID | Phase | Notes |
-|--------|-------|-------|
-| CRUD-01..05 | — | — |
-| CFG-01..04 | — | — |
-| TPL-01..02 | — | — |
-| YAML-01 | — | — |
-| PANEL-01..05 | — | — |
-| SVC-01 | — | — |
+| REQ-ID | Phase | Status |
+|--------|-------|--------|
+| CRUD-01 | Phase 1 | Pending |
+| CRUD-02 | Phase 1 | Pending |
+| CRUD-03 | Phase 1 | Pending |
+| CRUD-04 | Phase 1 | Pending |
+| CRUD-05 | Phase 1 | Pending |
+| CFG-01 | Phase 1 | Pending |
+| CFG-02 | Phase 1 | Pending |
+| CFG-03 | Phase 1 | Pending |
+| CFG-04 | Phase 1 | Pending |
+| TPL-01 | Phase 1 | Pending |
+| TPL-02 | Phase 1 | Pending |
+| YAML-01 | Phase 1 | Pending |
+| PANEL-01 | Phase 2 | Pending |
+| PANEL-02 | Phase 2 | Pending |
+| PANEL-03 | Phase 2 | Pending |
+| PANEL-04 | Phase 2 | Pending |
+| PANEL-05 | Phase 2 | Pending |
+| SVC-01 | Phase 3 | Pending |
