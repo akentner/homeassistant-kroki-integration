@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-custom-panel 02-02-PLAN.md
-last_updated: "2026-04-01T23:24:33.237Z"
+stopped_at: Completed 02-custom-panel 02-01-PLAN.md
+last_updated: "2026-04-01T23:26:56.102Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 3
   completed_phases: 1
   total_plans: 7
-  completed_plans: 5
+  completed_plans: 6
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 ## Current Position
 
 Phase: 02 (custom-panel) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-04-01
 
@@ -57,6 +57,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-subentry-crud P03 | 169 | 1 tasks | 1 files |
 | Phase 01-subentry-crud P04 | 7m 39s | 3 tasks | 3 files |
 | Phase 02-custom-panel P02 | 129s | 1 tasks | 1 files |
+| Phase 02-custom-panel P01 | 231 | 3 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -78,6 +79,8 @@ Recent decisions affecting current work:
 - [Phase 01-subentry-crud]: mock_config_subentry uses real ConfigSubentry (not MagicMock) to exercise actual subentry attribute access
 - [Phase 01-subentry-crud]: async_add_entities is a sync callback (AddConfigEntryEntitiesCallback returns None); test mock must be regular def, not async def
 - [Phase 02-custom-panel]: Import LitElement from CDN jsdelivr/lit@3 — HA bundled lit not reliably globally exported; no build step required
+- [Phase 02-custom-panel]: panel_custom not added to manifest.json dependencies — built-in HA component, formal dependency causes hass_frontend test failures
+- [Phase 02-custom-panel]: ws_get_entities uses @callback (sync), ws_render uses @websocket_api.async_response (async) per HA WebSocket API contract
 
 ### Pending Todos
 
@@ -90,6 +93,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T23:24:33.221Z
-Stopped at: Completed 02-custom-panel 02-02-PLAN.md
+Last session: 2026-04-01T23:26:56.085Z
+Stopped at: Completed 02-custom-panel 02-01-PLAN.md
 Resume file: None

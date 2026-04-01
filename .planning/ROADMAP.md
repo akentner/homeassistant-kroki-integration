@@ -51,7 +51,7 @@ Plans:
   4. User can browse available entity IDs and click to insert them into the editor source
 **Plans**: 3 plans
 Plans:
-- [ ] 02-01-PLAN.md — Backend: panel.py + ws_api.py + __init__.py wiring (PANEL-01, PANEL-04)
+- [x] 02-01-PLAN.md — Backend: panel.py + ws_api.py + __init__.py wiring (PANEL-01, PANEL-04)
 - [x] 02-02-PLAN.md — Frontend: kroki-panel.js LitElement webcomponent (PANEL-02, PANEL-03, PANEL-05)
 - [ ] 02-03-PLAN.md — Tests: WebSocket API + panel registration + full suite green
 **UI hint**: yes
@@ -73,5 +73,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Subentry CRUD | 4/4 | Complete |  |
-| 2. Custom Panel | 1/3 | In Progress|  |
+| 2. Custom Panel | 2/3 | In Progress|  |
 | 3. Service Extension | 0/TBD | Not started | - |
