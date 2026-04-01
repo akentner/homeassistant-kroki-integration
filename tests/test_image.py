@@ -1050,3 +1050,66 @@ class TestFromSubentry:
 
         assert entity._output_format == "png"
         assert entity.content_type == "image/png"
+
+
+# ---------------------------------------------------------------------------
+# KrokiImageEntity.async_force_render()
+# ---------------------------------------------------------------------------
+
+
+async def test_force_render_clears_state_and_triggers_refresh(hass: HomeAssistant, mock_kroki_client, tmp_path) -> None:
+    """force_render clears hash, evicts cache, clears image, triggers refresh."""
+    from unittest.mock import MagicMock
+
+    cache = KrokiCache(tmp_path / "test_cache_fr1", max_size=10)
+    entity = _make_entity(hass, mock_kroki_client, cache)
+
+    # Simulate a previously rendered state
+    entity._current_hash = "somehash"
+    entity._current_image = b"<svg/>"
+
+    mock_unsub = MagicMock()
+    entity._unsub_track = mock_unsub
+
+    # Seed the cache with the current hash so evict has something to remove
+    cache.put("somehash", b"<svg/>", "svg")
+
+    await entity.async_force_render()
+
+    assert entity._current_hash is None
+    assert entity._current_image is None
+    assert cache.get("somehash") is None  # disk cache evicted
+    mock_unsub.async_refresh.assert_called_once()
+
+
+async def test_force_render_noop_evict_when_no_hash(hass: HomeAssistant, mock_kroki_client, tmp_path) -> None:
+    """force_render skips disk eviction when entity has never rendered (D-04)."""
+    from unittest.mock import MagicMock
+
+    cache = KrokiCache(tmp_path / "test_cache_fr2", max_size=10)
+    entity = _make_entity(hass, mock_kroki_client, cache)
+
+    # Entity has never rendered: _current_hash is None
+    assert entity._current_hash is None
+
+    mock_unsub = MagicMock()
+    entity._unsub_track = mock_unsub
+
+    await entity.async_force_render()
+
+    # State cleared
+    assert entity._current_hash is None
+    assert entity._current_image is None
+    # Refresh still triggered
+    mock_unsub.async_refresh.assert_called_once()
+
+
+async def test_force_render_does_nothing_if_no_tracker(hass: HomeAssistant, mock_kroki_client, tmp_path) -> None:
+    """force_render is safe to call before entity is added to hass."""
+    cache = KrokiCache(tmp_path / "test_cache_fr3", max_size=10)
+    entity = _make_entity(hass, mock_kroki_client, cache)
+    entity._unsub_track = None  # not yet added to hass
+
+    # Must not raise
+    await entity.async_force_render()
+    assert entity._current_hash is None

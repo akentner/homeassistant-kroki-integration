@@ -224,3 +224,40 @@ class TestCacheClear:
 
         meta = json.loads((cache_dir / METADATA_FILE).read_text())
         assert meta == {}
+
+
+# ---------------------------------------------------------------------------
+# KrokiCache.evict()
+# ---------------------------------------------------------------------------
+
+
+def test_evict_removes_entry(cache: KrokiCache, cache_dir: Path):
+    """Evict removes the file and metadata for a known hash."""
+    data = b"<svg>hello</svg>"
+    cache.put("aabbcc", data, "svg")
+    assert cache.get("aabbcc") is not None
+
+    cache.evict("aabbcc")
+
+    assert cache.get("aabbcc") is None
+    # Disk file should be gone
+    file_path = cache_dir / "aabbcc.svg"
+    assert not file_path.exists()
+
+
+def test_evict_unknown_key_is_noop(cache: KrokiCache):
+    """Evicting an unknown hash does not raise and leaves cache intact."""
+    cache.put("deadbeef", b"data", "png")
+    cache.evict("no_such_key")  # must not raise
+    # Original entry untouched
+    assert cache.get("deadbeef") is not None
+
+
+def test_evict_missing_file_still_removes_metadata(cache: KrokiCache, cache_dir: Path):
+    """Evict removes metadata even if the disk file is already gone."""
+    cache.put("badf00d", b"data", "svg")
+    # Delete file manually to simulate external removal
+    (cache_dir / "badf00d.svg").unlink()
+    # Should not raise
+    cache.evict("badf00d")
+    assert cache.get("badf00d") is None
