@@ -168,3 +168,117 @@ class KrokiOptionsFlow(OptionsFlow):
                 }
             ),
         )
+
+
+class DiagramSubentryFlowHandler(ConfigSubentryFlow):
+    """Handle add/reconfigure flows for diagram subentries."""
+
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> SubentryFlowResult:
+        """Handle the add-diagram step."""
+        parent_entry = self._get_entry()
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            # Validate template syntax (D-01)
+            source = user_input[CONF_DIAGRAM_SOURCE]
+            try:
+                Template(source, self.hass).ensure_valid()
+            except TemplateError as err:
+                errors[CONF_DIAGRAM_SOURCE] = "invalid_template"
+                return self.async_show_form(
+                    step_id="user",
+                    data_schema=self._build_schema(parent_entry),
+                    errors=errors,
+                    description_placeholders={"reason": str(err)},
+                )
+
+            return self.async_create_entry(
+                title=user_input[CONF_NAME],
+                data={
+                    CONF_DIAGRAM_TYPE: user_input[CONF_DIAGRAM_TYPE],
+                    CONF_DIAGRAM_SOURCE: user_input[CONF_DIAGRAM_SOURCE],
+                    CONF_OUTPUT_FORMAT: user_input.get(CONF_OUTPUT_FORMAT),
+                },
+            )
+
+        return self.async_show_form(
+            step_id="user",
+            data_schema=self._build_schema(parent_entry),
+            errors=errors,
+        )
+
+    async def async_step_reconfigure(self, user_input: dict[str, Any] | None = None) -> SubentryFlowResult:
+        """Handle reconfigure of an existing diagram subentry."""
+        parent_entry = self._get_entry()
+        subentry = self._get_reconfigure_subentry()
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            source = user_input[CONF_DIAGRAM_SOURCE]
+            try:
+                Template(source, self.hass).ensure_valid()
+            except TemplateError as err:
+                errors[CONF_DIAGRAM_SOURCE] = "invalid_template"
+                return self.async_show_form(
+                    step_id="reconfigure",
+                    data_schema=self._build_schema(parent_entry, subentry.data),
+                    errors=errors,
+                    description_placeholders={"reason": str(err)},
+                )
+
+            return self.async_update_and_abort(
+                parent_entry,
+                subentry,
+                title=user_input[CONF_NAME],
+                data={
+                    CONF_DIAGRAM_TYPE: user_input[CONF_DIAGRAM_TYPE],
+                    CONF_DIAGRAM_SOURCE: user_input[CONF_DIAGRAM_SOURCE],
+                    CONF_OUTPUT_FORMAT: user_input.get(CONF_OUTPUT_FORMAT),
+                },
+            )
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=self._build_schema(parent_entry, subentry.data),
+            errors=errors,
+        )
+
+    def _build_schema(
+        self,
+        parent_entry: ConfigEntry,
+        current: dict | None = None,
+    ) -> vol.Schema:
+        """Build the form schema for add or reconfigure."""
+        if current is None:
+            current = {}
+        # Add case (current is empty): inherit parent server's default output format (D-05).
+        # Map the effective format to a selector option string ("svg", "png", or "server_default").
+        if not current:
+            effective = parent_entry.options.get(CONF_DEFAULT_OUTPUT_FORMAT, DEFAULT_OUTPUT_FORMAT)
+            default_format = effective if effective in ("svg", "png") else "server_default"
+        else:
+            default_format = current.get(CONF_OUTPUT_FORMAT, "server_default")
+        return vol.Schema(
+            {
+                vol.Required(
+                    CONF_NAME,
+                    default=current.get(CONF_NAME, ""),
+                ): TextSelector(TextSelectorConfig(type=TextSelectorType.TEXT)),
+                vol.Required(
+                    CONF_DIAGRAM_TYPE,
+                    default=current.get(CONF_DIAGRAM_TYPE, SUPPORTED_DIAGRAM_TYPES[0]),
+                ): SelectSelector(SelectSelectorConfig(options=SUPPORTED_DIAGRAM_TYPES, sort=True)),
+                vol.Required(
+                    CONF_DIAGRAM_SOURCE,
+                    default=current.get(CONF_DIAGRAM_SOURCE, ""),
+                ): TemplateSelector(),
+                vol.Optional(
+                    CONF_OUTPUT_FORMAT,
+                    default=default_format,
+                ): SelectSelector(
+                    SelectSelectorConfig(
+                        options=["server_default", "svg", "png"],
+                    )
+                ),
+            }
+        )
