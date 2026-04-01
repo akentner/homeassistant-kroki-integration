@@ -35,10 +35,10 @@
 ### Custom Panel
 
 - [ ] **PANEL-01**: Kroki-Sidebar-Panel ist in HA registriert und über die Seitenleiste erreichbar
-- [ ] **PANEL-02**: Panel zeigt Editor (textarea, Monospace) und Live-Vorschau nebeneinander (Split-Pane)
-- [ ] **PANEL-03**: User kann Diagrammtyp im Panel per Dropdown wählen
+- [x] **PANEL-02**: Panel zeigt Editor (textarea, Monospace) und Live-Vorschau nebeneinander (Split-Pane)
+- [x] **PANEL-03**: User kann Diagrammtyp im Panel per Dropdown wählen
 - [ ] **PANEL-04**: Panel rendert bei Änderungen eine Live-Vorschau via Kroki-Server (WebSocket-Backend)
-- [ ] **PANEL-05**: User kann Entity-IDs aus einem Entity-Browser in die Template-Source einfügen
+- [x] **PANEL-05**: User kann Entity-IDs aus einem Entity-Browser in die Template-Source einfügen
 
 ### Service-Erweiterung
 
@@ -83,8 +83,8 @@
 | TPL-02 | Phase 1 | Complete |
 | YAML-01 | Phase 1 | Complete |
 | PANEL-01 | Phase 2 | Pending |
-| PANEL-02 | Phase 2 | Pending |
-| PANEL-03 | Phase 2 | Pending |
+| PANEL-02 | Phase 2 | Complete |
+| PANEL-03 | Phase 2 | Complete |
 | PANEL-04 | Phase 2 | Pending |
-| PANEL-05 | Phase 2 | Pending |
+| PANEL-05 | Phase 2 | Complete |
 | SVC-01 | Phase 3 | Pending |
