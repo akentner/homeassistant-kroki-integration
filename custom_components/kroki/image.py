@@ -11,10 +11,11 @@ from typing import Any
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.components.image import ImageEntity
+from homeassistant.config_entries import ConfigEntry, ConfigSubentry
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback, AddEntitiesCallback
 from homeassistant.helpers.event import TrackTemplate, async_track_template_result
 from homeassistant.helpers.template import Template
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
@@ -89,8 +90,9 @@ async def async_setup_platform(
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
     """Set up Kroki image entities from YAML configuration."""
-    # Determine which Kroki server and options to use
-    # Use the first configured config entry, or fall back to defaults
+    # Determine which Kroki server and options to use.
+    # Use the first configured config entry, or fall back to defaults.
+    # Per D-11: reuse shared client and cache from hass.data if available.
     server_url = DEFAULT_SERVER_URL
     cache_max_size = DEFAULT_CACHE_MAX_SIZE
     default_output_format = DEFAULT_OUTPUT_FORMAT
@@ -101,13 +103,22 @@ async def async_setup_platform(
         server_url = entry.data.get(CONF_SERVER_URL, DEFAULT_SERVER_URL)
         cache_max_size = entry.options.get(CONF_CACHE_MAX_SIZE, DEFAULT_CACHE_MAX_SIZE)
         default_output_format = entry.options.get(CONF_DEFAULT_OUTPUT_FORMAT, DEFAULT_OUTPUT_FORMAT)
-
-    session = async_get_clientsession(hass)
-    client = KrokiClient(session, server_url)
-
-    # Set up the cache
-    cache_dir = Path(hass.config.path(".storage")) / DOMAIN
-    cache = KrokiCache(cache_dir, max_size=cache_max_size)
+        # Reuse shared client and cache from hass.data if available (D-11)
+        entry_data = hass.data.get(DOMAIN, {}).get(entry.entry_id)
+        if entry_data:
+            client = entry_data["client"]
+            cache = entry_data["cache"]
+        else:
+            session = async_get_clientsession(hass)
+            client = KrokiClient(session, server_url)
+            cache_dir = Path(hass.config.path(".storage")) / DOMAIN
+            cache = KrokiCache(cache_dir, max_size=cache_max_size)
+    else:
+        session = async_get_clientsession(hass)
+        client = KrokiClient(session, DEFAULT_SERVER_URL)
+        cache_dir = Path(hass.config.path(".storage")) / DOMAIN
+        cache = KrokiCache(cache_dir, max_size=DEFAULT_CACHE_MAX_SIZE)
+        default_output_format = DEFAULT_OUTPUT_FORMAT
 
     entities: list[KrokiImageEntity] = []
     for diagram_config in config[CONF_DIAGRAMS]:
@@ -128,6 +139,29 @@ async def async_setup_platform(
         )
 
     async_add_entities(entities)
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+) -> None:
+    """Set up GUI-managed diagram entities from config entry subentries."""
+    entry_data = hass.data[DOMAIN][config_entry.entry_id]
+    client: KrokiClient = entry_data["client"]
+    cache: KrokiCache = entry_data["cache"]
+
+    for subentry in config_entry.subentries.values():
+        if subentry.subentry_type != "diagram":
+            continue
+        output_format_raw = subentry.data.get(CONF_OUTPUT_FORMAT)
+        effective_output_format = (
+            output_format_raw
+            if output_format_raw in ("svg", "png")
+            else config_entry.options.get(CONF_DEFAULT_OUTPUT_FORMAT, DEFAULT_OUTPUT_FORMAT)
+        )
+        entity = KrokiImageEntity.from_subentry(hass, client, cache, subentry, effective_output_format)
+        async_add_entities([entity], config_subentry_id=subentry.subentry_id)
 
 
 class KrokiImageEntity(ImageEntity):
@@ -175,6 +209,36 @@ class KrokiImageEntity(ImageEntity):
             if not default_entity_id.startswith("image."):
                 raise ValueError(f"default_entity_id must start with 'image.' (got: '{default_entity_id}')")
             self.entity_id = f"image.{cv.slugify(default_entity_id[len('image.') :])}"
+
+    @classmethod
+    def from_subentry(
+        cls,
+        hass: HomeAssistant,
+        client: KrokiClient,
+        cache: KrokiCache,
+        subentry: ConfigSubentry,
+        effective_output_format: str,
+    ) -> KrokiImageEntity:
+        """Create a KrokiImageEntity from a config subentry (GUI path).
+
+        Uses subentry.subentry_id as unique_id (stable ULID, never name-derived)
+        to prevent entity registry collisions with YAML entities (Pitfall 1, D-08).
+        """
+        source = subentry.data[CONF_DIAGRAM_SOURCE]
+        diagram_type = subentry.data[CONF_DIAGRAM_TYPE]
+        # Wrap raw source string in a Template object (YAML path uses cv.template which does this)
+        source_template = Template(source, hass)
+
+        return cls(
+            hass=hass,
+            client=client,
+            cache=cache,
+            name=subentry.title,
+            diagram_type=diagram_type,
+            diagram_source_template=source_template,
+            output_format=effective_output_format,
+            unique_id=subentry.subentry_id,  # stable ULID, never name-derived (D-08, Pitfall 1)
+        )
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
