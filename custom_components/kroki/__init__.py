@@ -6,14 +6,25 @@ import logging
 from pathlib import Path
 
 import homeassistant.helpers.config_validation as cv
+import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.const import ATTR_ENTITY_ID, Platform
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.reload import async_setup_reload_service
 from homeassistant.helpers.typing import ConfigType
 
 from .cache import KrokiCache
-from .const import CONF_CACHE_MAX_SIZE, CONF_SERVER_URL, DEFAULT_CACHE_MAX_SIZE, DEFAULT_SERVER_URL, DOMAIN, PLATFORMS
+from .const import (
+    CONF_CACHE_MAX_SIZE,
+    CONF_SERVER_URL,
+    DEFAULT_CACHE_MAX_SIZE,
+    DEFAULT_SERVER_URL,
+    DOMAIN,
+    PLATFORMS,
+    SERVICE_FORCE_RENDER,
+)
+from .image import KrokiImageEntity
 from .kroki_client import KrokiClient
 from .panel import async_setup_panel
 from .ws_api import async_setup_ws_api
@@ -31,6 +42,33 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     await async_setup_reload_service(hass, DOMAIN, PLATFORMS)
     await async_setup_panel(hass)
     async_setup_ws_api(hass)
+
+    async def _async_handle_force_render(call: ServiceCall) -> None:
+        """Handle the kroki.force_render service call."""
+        entity_ids: list[str] = call.data.get(ATTR_ENTITY_ID, [])
+        # Resolve the image entity component to look up live entities
+        component = hass.data.get("entity_components", {}).get(Platform.IMAGE)
+        for entity_id in entity_ids:
+            if component is None:
+                _LOGGER.warning("force_render: image entity component not available, skipping %s", entity_id)
+                continue
+            entity = component.get_entity(entity_id)
+            if entity is None or not isinstance(entity, KrokiImageEntity):
+                _LOGGER.warning(
+                    "force_render: entity %s not found or not a KrokiImageEntity, skipping",
+                    entity_id,
+                )
+                continue
+            _LOGGER.debug("force_render dispatching to %s", entity_id)
+            hass.async_create_task(entity.async_force_render())
+
+    hass.services.async_register(
+        DOMAIN,
+        SERVICE_FORCE_RENDER,
+        _async_handle_force_render,
+        schema=vol.Schema({vol.Optional(ATTR_ENTITY_ID): cv.entity_ids}),
+    )
+
     return True
 
 
