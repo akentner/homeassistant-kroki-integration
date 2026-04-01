@@ -21,7 +21,7 @@
 - [x] **CFG-01**: User wählt Diagrammtyp aus einem Dropdown (alle 28+ unterstützten Typen)
 - [x] **CFG-02**: User gibt Diagram-Source in einem TemplateSelector-Feld ein (mehrzeilig, Full-Screen-Editor)
 - [x] **CFG-03**: User wählt Output-Format (SVG/PNG) pro Diagramm; Default vom Server-Entry geerbt
-- [ ] **CFG-04**: Jedes GUI-Diagramm erhält eine stabile `unique_id` = `subentry_id` (nie vom Namen abgeleitet)
+- [x] **CFG-04**: Jedes GUI-Diagramm erhält eine stabile `unique_id` = `subentry_id` (nie vom Namen abgeleitet)
 
 ### Template-Support
 
@@ -30,7 +30,7 @@
 
 ### YAML-Koexistenz
 
-- [ ] **YAML-01**: YAML-konfigurierte Diagramme funktionieren parallel zu GUI-Diagrammen ohne Änderung oder Migration
+- [x] **YAML-01**: YAML-konfigurierte Diagramme funktionieren parallel zu GUI-Diagrammen ohne Änderung oder Migration
 
 ### Custom Panel
 
@@ -78,10 +78,10 @@
 | CFG-01 | Phase 1 | Complete |
 | CFG-02 | Phase 1 | Complete |
 | CFG-03 | Phase 1 | Complete |
-| CFG-04 | Phase 1 | Pending |
+| CFG-04 | Phase 1 | Complete |
 | TPL-01 | Phase 1 | Complete |
 | TPL-02 | Phase 1 | Complete |
-| YAML-01 | Phase 1 | Pending |
+| YAML-01 | Phase 1 | Complete |
 | PANEL-01 | Phase 2 | Pending |
 | PANEL-02 | Phase 2 | Pending |
 | PANEL-03 | Phase 2 | Pending |
