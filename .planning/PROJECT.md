@@ -42,6 +42,18 @@ Kroki-Diagramm-Entitäten müssen vollständig über die Home Assistant GUI erst
 - Panel für Mobile — Desktop-first, Mobile-Optimierung ist ein späterer Milestone
 - Migration bestehender YAML-Diagramme in Config Entries — Koexistenz statt Migration
 
+## Current Milestone: v2.0 GUI Entity Management
+
+**Goal:** Kroki-Diagramm-Entitäten vollständig über die Home Assistant GUI anlegen, bearbeiten und löschen — ohne YAML bearbeiten zu müssen.
+
+**Target features:**
+- Config Subentries: Diagramme per UI anlegen/bearbeiten/löschen
+- TemplateSelector mit Full-Screen-Editor für Diagram-Source
+- Jinja2-Template-Unterstützung in GUI-Diagrammen
+- Server-Zuweisung per Subentry (Diagramm gehört zu Server-Config-Entry)
+- YAML-Modus bleibt vollständig funktionsfähig (paralleler Pfad)
+- Custom Panel mit Split-Pane Editor + Live-Vorschau nebeneinander
+
 ## Context
 
 - **Brownfield:** Bestehende Integration mit funktionierendem YAML-Modus, Config Flow für Server, Tests und CI
@@ -83,4 +95,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-01 after initialization*
+*Last updated: 2026-04-01 — Milestone v2.0 started*
