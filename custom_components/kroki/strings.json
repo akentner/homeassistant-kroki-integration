@@ -50,6 +50,16 @@
     "reload": {
       "name": "Reload",
       "description": "Reload Kroki image entities from YAML configuration."
+    },
+    "force_render": {
+      "name": "Force Render",
+      "description": "Forces an immediate re-render of one or more Kroki diagram entities, bypassing the hash-based dedup and disk cache.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "One or more Kroki diagram image entities to force-render."
+        }
+      }
     }
   },
   "subentries": {
@@ -107,4 +117,3 @@
     }
   }
 }
-
