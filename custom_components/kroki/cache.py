@@ -135,6 +135,32 @@ class KrokiCache:
         }
         self._save_metadata()
 
+    def evict(self, content_hash: str) -> None:
+        """Remove a specific cache entry by content hash.
+
+        Called by force_render to invalidate a single known cache key
+        before triggering a re-render. Silent no-op if the key is unknown.
+
+        Args:
+            content_hash: SHA256 hash key identifying the cache entry to remove.
+
+        """
+        if content_hash not in self._metadata:
+            return
+
+        entry = self._metadata[content_hash]
+        file_path = self._file_path(content_hash, entry["suffix"])
+
+        try:
+            if file_path.exists():
+                os.remove(file_path)
+        except OSError as err:
+            _LOGGER.warning("Failed to remove cached file %s: %s", file_path, err)
+
+        del self._metadata[content_hash]
+        self._save_metadata()
+        _LOGGER.debug("Evicted cache entry by request: %s", content_hash)
+
     def _evict(self) -> None:
         """Remove oldest entries if cache exceeds max size."""
         while len(self._metadata) >= self._max_size:

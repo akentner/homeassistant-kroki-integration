@@ -30,6 +30,9 @@ CONTENT_TYPE_MAP = {
     "png": "image/png",
 }
 
+# Service names
+SERVICE_FORCE_RENDER = "force_render"
+
 # Supported diagram types (all Kroki-supported types)
 SUPPORTED_DIAGRAM_TYPES = [
     "actdiag",
