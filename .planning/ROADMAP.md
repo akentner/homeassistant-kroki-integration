@@ -32,7 +32,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can delete a diagram subentry and the associated image entity disappears from HA
   4. GUI-created diagrams with Jinja2 templates in the source field auto-update when referenced entity states change
   5. YAML-configured diagrams continue to function unchanged alongside GUI diagrams after a reload
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 01-01-PLAN.md — Platform forwarding + shared client/cache in __init__.py
+- [ ] 01-02-PLAN.md — DiagramSubentryFlowHandler + strings.json
+- [ ] 01-03-PLAN.md — image.py dual-path: async_setup_entry + from_subentry
+- [ ] 01-04-PLAN.md — Tests: subentry flows + coexistence + full suite green
 **UI hint**: yes
 
 ### Phase 2: Custom Panel
@@ -63,6 +68,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Subentry CRUD | 0/TBD | Not started | - |
+| 1. Subentry CRUD | 0/4 | Not started | - |
 | 2. Custom Panel | 0/TBD | Not started | - |
 | 3. Service Extension | 0/TBD | Not started | - |
