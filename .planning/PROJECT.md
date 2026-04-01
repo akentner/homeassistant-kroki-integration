@@ -31,9 +31,9 @@ Kroki-Diagramm-Entitäten müssen vollständig über die Home Assistant GUI erst
 - [ ] Server-Auswahl beim Erstellen eines Diagramms (Dropdown aller konfigurierten Server)
 - [ ] Volle Jinja2-Template-Unterstützung in GUI-erstellten Diagrammen
 - [ ] Live-Vorschau im Options Flow beim Bearbeiten
-- [ ] Frontend-Panel mit Editor und Live-Vorschau nebeneinander
-- [ ] Diagrammtyp-Auswahl im Panel
-- [ ] Entity-Browser im Panel zum Einfügen von Entity-States in Templates
+  - ✓ Frontend-Panel mit Editor und Live-Vorschau nebeneinander — Validated in Phase 02: Custom Panel
+  - ✓ Diagrammtyp-Auswahl im Panel — Validated in Phase 02: Custom Panel
+  - ✓ Entity-Browser im Panel zum Einfügen von Entity-States in Templates — Validated in Phase 02: Custom Panel
 - [ ] YAML-Modus bleibt parallel voll funktionsfähig
 
 ### Out of Scope
@@ -95,4 +95,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-01 — Milestone v2.0 started*
+*Last updated: 2026-04-02 — Phase 02 complete: sidebar panel with split-pane editor, live preview, and entity browser delivered*
