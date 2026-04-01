@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 01-subentry-crud 01-03-PLAN.md
-last_updated: "2026-04-01T22:54:41.140Z"
+status: verifying
+stopped_at: Completed 01-subentry-crud 01-04-PLAN.md — Phase 01 complete
+last_updated: "2026-04-01T23:09:30.301Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 4
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 
 Phase: 01 (subentry-crud) — EXECUTING
 Plan: 4 of 4
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-01
 
 Progress: [░░░░░░░░░░] 0%
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-subentry-crud P02 | 2m 27s | 2 tasks | 2 files |
 | Phase 01-subentry-crud P01 | 208 | 2 tasks | 3 files |
 | Phase 01-subentry-crud P03 | 169 | 1 tasks | 1 files |
+| Phase 01-subentry-crud P04 | 7m 39s | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,9 @@ Recent decisions affecting current work:
 - [Phase 01-subentry-crud]: Patch ConfigEntries class-level methods in tests to isolate __init__.py from image platform (no async_setup_entry yet)
 - [Phase 01-subentry-crud]: async_add_entities called per-entity with config_subentry_id=subentry.subentry_id to link entities to their subentry in HA entity registry
 - [Phase 01-subentry-crud]: from_subentry uses unique_id=subentry.subentry_id (stable ULID) — never derived from name, preventing entity registry collisions with YAML entities (D-08, Pitfall 1)
+- [Phase 01-subentry-crud]: TemplateSelector validates template syntax at schema level via cv.template/ensure_valid — duplicate ensure_valid() in async_step_user handler is dead code
+- [Phase 01-subentry-crud]: mock_config_subentry uses real ConfigSubentry (not MagicMock) to exercise actual subentry attribute access
+- [Phase 01-subentry-crud]: async_add_entities is a sync callback (AddConfigEntryEntitiesCallback returns None); test mock must be regular def, not async def
 
 ### Pending Todos
 
@@ -84,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T22:54:41.124Z
-Stopped at: Completed 01-subentry-crud 01-03-PLAN.md
+Last session: 2026-04-01T23:09:30.285Z
+Stopped at: Completed 01-subentry-crud 01-04-PLAN.md — Phase 01 complete
 Resume file: None

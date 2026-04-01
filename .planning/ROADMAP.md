@@ -37,7 +37,7 @@ Plans:
 - [x] 01-01-PLAN.md — Platform forwarding + shared client/cache in __init__.py
 - [x] 01-02-PLAN.md — DiagramSubentryFlowHandler + strings.json
 - [x] 01-03-PLAN.md — image.py dual-path: async_setup_entry + from_subentry
-- [ ] 01-04-PLAN.md — Tests: subentry flows + coexistence + full suite green
+- [x] 01-04-PLAN.md — Tests: subentry flows + coexistence + full suite green
 **UI hint**: yes
 
 ### Phase 2: Custom Panel
