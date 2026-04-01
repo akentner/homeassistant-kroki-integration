@@ -17,7 +17,7 @@ surface with a force re-render service action.
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [ ] **Phase 1: Subentry CRUD** - Users can create, edit, and delete diagram entities via the HA GUI using Config Subentries
-- [ ] **Phase 2: Custom Panel** - Sidebar panel with split-pane code editor and live diagram preview
+- [x] **Phase 2: Custom Panel** - Sidebar panel with split-pane code editor and live diagram preview (completed 2026-04-01)
 - [ ] **Phase 3: Service Extension** - `kroki.force_render` service for manual re-render of any diagram entity
 
 ## Phase Details
@@ -53,7 +53,7 @@ Plans:
 Plans:
 - [x] 02-01-PLAN.md — Backend: panel.py + ws_api.py + __init__.py wiring (PANEL-01, PANEL-04)
 - [x] 02-02-PLAN.md — Frontend: kroki-panel.js LitElement webcomponent (PANEL-02, PANEL-03, PANEL-05)
-- [ ] 02-03-PLAN.md — Tests: WebSocket API + panel registration + full suite green
+- [x] 02-03-PLAN.md — Tests: WebSocket API + panel registration + full suite green
 **UI hint**: yes
 
 ### Phase 3: Service Extension
@@ -73,5 +73,5 @@ Phases execute in numeric order: 1 → 2 → 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Subentry CRUD | 4/4 | Complete |  |
-| 2. Custom Panel | 2/3 | In Progress|  |
+| 2. Custom Panel | 3/3 | Complete   | 2026-04-01 |
 | 3. Service Extension | 0/TBD | Not started | - |

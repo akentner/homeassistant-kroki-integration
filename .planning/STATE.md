@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 02-custom-panel 02-01-PLAN.md
-last_updated: "2026-04-01T23:26:56.102Z"
+status: verifying
+stopped_at: Completed 02-custom-panel 02-03-PLAN.md
+last_updated: "2026-04-01T23:32:42.439Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 3
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-04-01)
 
 Phase: 02 (custom-panel) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-01
 
 Progress: [░░░░░░░░░░] 0%
@@ -58,6 +58,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-subentry-crud P04 | 7m 39s | 3 tasks | 3 files |
 | Phase 02-custom-panel P02 | 129s | 1 tasks | 1 files |
 | Phase 02-custom-panel P01 | 231 | 3 tasks | 5 files |
+| Phase 02-custom-panel P03 | 208s | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -81,6 +82,8 @@ Recent decisions affecting current work:
 - [Phase 02-custom-panel]: Import LitElement from CDN jsdelivr/lit@3 — HA bundled lit not reliably globally exported; no build step required
 - [Phase 02-custom-panel]: panel_custom not added to manifest.json dependencies — built-in HA component, formal dependency causes hass_frontend test failures
 - [Phase 02-custom-panel]: ws_get_entities uses @callback (sync), ws_render uses @websocket_api.async_response (async) per HA WebSocket API contract
+- [Phase 02-custom-panel]: @async_response wraps handler as sync callback — tests use sync call + async_block_till_done to drain background task
+- [Phase 02-custom-panel]: hass.http is None in unit tests — patch.object(hass, 'http', mock_http) required instead of patching on the None attribute
 
 ### Pending Todos
 
@@ -93,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T23:26:56.085Z
-Stopped at: Completed 02-custom-panel 02-01-PLAN.md
+Last session: 2026-04-01T23:32:42.416Z
+Stopped at: Completed 02-custom-panel 02-03-PLAN.md
 Resume file: None
