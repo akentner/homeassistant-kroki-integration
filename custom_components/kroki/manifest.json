@@ -1,7 +1,9 @@
 {
   "domain": "kroki",
   "name": "Kroki",
-  "after_dependencies": ["http"],
+  "after_dependencies": [
+    "http"
+  ],
   "codeowners": [
     "@akentner"
   ],
@@ -11,5 +13,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/akentner/homeassistant-kroki-integration/issues",
   "requirements": [],
-  "version": "2.0.0-alpha.2"
+  "version": "2.0.0-alpha.3"
 }
