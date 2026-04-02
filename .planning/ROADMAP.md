@@ -65,9 +65,9 @@ Plans:
   2. The service is callable from Developer Tools > Services and from automations
 **Plans**: 3 plans
 Plans:
-- [ ] 03-01-PLAN.md — Cache evict method + SERVICE_FORCE_RENDER constant + KrokiImageEntity.async_force_render()
-- [ ] 03-02-PLAN.md — Register kroki.force_render service in async_setup + services.yaml + strings.json
-- [ ] 03-03-PLAN.md — Tests: cache evict + entity force_render + service dispatch + full suite green
+- [x] 03-01-PLAN.md — Cache evict method + SERVICE_FORCE_RENDER constant + KrokiImageEntity.async_force_render()
+- [x] 03-02-PLAN.md — Register kroki.force_render service in async_setup + services.yaml + strings.json
+- [x] 03-03-PLAN.md — Tests: cache evict + entity force_render + service dispatch + full suite green
 
 ## Progress
 
