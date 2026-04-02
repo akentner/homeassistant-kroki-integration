@@ -28,60 +28,6 @@
     "abort": {
       "already_configured": "This Kroki server is already configured.",
       "reconfigure_successful": "Server URL updated successfully."
-    },
-    "subentries": {
-      "diagram": {
-        "flow_title": "Diagram",
-        "step": {
-          "user": {
-            "title": "Add Diagram",
-            "description": "Configure a new Kroki diagram entity.",
-            "data": {
-              "name": "Name",
-              "diagram_type": "Diagram Type",
-              "diagram_source": "Diagram Source",
-              "output_format": "Output Format"
-            },
-            "data_description": {
-              "name": "Display name for this diagram entity (e.g. 'Network Overview').",
-              "diagram_type": "The Kroki diagram type to use for rendering.",
-              "diagram_source": "Diagram source code or Jinja2 template. Templates are re-rendered automatically when referenced entity states change.",
-              "output_format": "Image format for this diagram. 'Server Default' inherits the format configured on the server entry."
-            }
-          },
-          "reconfigure": {
-            "title": "Edit Diagram",
-            "description": "Update the configuration for this diagram entity.",
-            "data": {
-              "name": "Name",
-              "diagram_type": "Diagram Type",
-              "diagram_source": "Diagram Source",
-              "output_format": "Output Format"
-            },
-            "data_description": {
-              "name": "Display name for this diagram entity.",
-              "diagram_type": "The Kroki diagram type to use for rendering.",
-              "diagram_source": "Diagram source code or Jinja2 template.",
-              "output_format": "Image format for this diagram. 'Server Default' inherits the format configured on the server entry."
-            }
-          }
-        },
-        "error": {
-          "invalid_template": "Invalid Jinja2 template syntax: {reason}"
-        },
-        "abort": {
-          "reconfigure_successful": "Diagram updated successfully."
-        },
-        "selector": {
-          "output_format": {
-            "options": {
-              "server_default": "Server Default",
-              "svg": "SVG",
-              "png": "PNG"
-            }
-          }
-        }
-      }
     }
   },
   "options": {
