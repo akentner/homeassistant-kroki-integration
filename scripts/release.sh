@@ -16,8 +16,10 @@ bold()  { printf '\033[1m%s\033[0m\n' "$*"; }
 
 bump_version() {
     local version="$1" part="$2"
-    local major minor patch
-    IFS='.' read -r major minor patch <<< "$version"
+    local base major minor patch
+    # Strip pre-release suffix (e.g. -alpha.1) before arithmetic
+    base="${version%%-*}"
+    IFS='.' read -r major minor patch <<< "$base"
     case "$part" in
         major) echo "$((major + 1)).0.0" ;;
         minor) echo "${major}.$((minor + 1)).0" ;;
