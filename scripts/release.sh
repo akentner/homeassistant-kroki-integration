@@ -79,8 +79,8 @@ case "$CHOICE" in
     3) NEW_VERSION="$SUGGEST_MAJOR" ;;
     4)
         read -rp "Enter version (without 'v'): " NEW_VERSION
-        if ! [[ "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            red "ERROR: Invalid version format '${NEW_VERSION}'. Expected X.Y.Z"
+        if ! [[ "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)(\.[0-9]+)?)?$ ]]; then
+            red "ERROR: Invalid version format '${NEW_VERSION}'. Expected X.Y.Z or X.Y.Z-alpha.N / -beta.N / -rc.N"
             exit 1
         fi
         ;;
@@ -182,14 +182,22 @@ echo ""
 
 TAG="v${NEW_VERSION}"
 
+# Mark as pre-release if version contains a pre-release suffix
+PRERELEASE_FLAG=""
+if [[ "$NEW_VERSION" =~ -(alpha|beta|rc) ]]; then
+    PRERELEASE_FLAG="--prerelease"
+fi
+
 if [[ -z "$RELEASE_NOTES" ]]; then
     gh release create "$TAG" \
         --title "$TAG" \
-        --generate-notes
+        --generate-notes \
+        $PRERELEASE_FLAG
 else
     gh release create "$TAG" \
         --title "$TAG" \
-        --notes "$RELEASE_NOTES"
+        --notes "$RELEASE_NOTES" \
+        $PRERELEASE_FLAG
 fi
 
 echo ""

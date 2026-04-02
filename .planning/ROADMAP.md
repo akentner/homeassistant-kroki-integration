@@ -16,9 +16,9 @@ surface with a force re-render service action.
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Subentry CRUD** - Users can create, edit, and delete diagram entities via the HA GUI using Config Subentries
+- [x] **Phase 1: Subentry CRUD** - Users can create, edit, and delete diagram entities via the HA GUI using Config Subentries (completed 2026-04-01)
 - [x] **Phase 2: Custom Panel** - Sidebar panel with split-pane code editor and live diagram preview (completed 2026-04-01)
-- [ ] **Phase 3: Service Extension** - `kroki.force_render` service for manual re-render of any diagram entity
+- [x] **Phase 3: Service Extension** - `kroki.force_render` service for manual re-render of any diagram entity (completed 2026-04-02)
 
 ## Phase Details
 
@@ -76,6 +76,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Subentry CRUD | 4/4 | Complete |  |
-| 2. Custom Panel | 3/3 | Complete   | 2026-04-01 |
-| 3. Service Extension | 0/TBD | Not started | - |
+| 1. Subentry CRUD | 4/4 | Complete | 2026-04-01 |
+| 2. Custom Panel | 3/3 | Complete | 2026-04-01 |
+| 3. Service Extension | 3/3 | Complete | 2026-04-02 |
