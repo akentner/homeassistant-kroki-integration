@@ -42,7 +42,7 @@
 
 ### Service-Erweiterung
 
-- [ ] **SVC-01**: HA-Service `kroki.force_render` ermöglicht manuelles Neu-Rendern einer bestimmten Entität
+- [x] **SVC-01**: HA-Service `kroki.force_render` ermöglicht manuelles Neu-Rendern einer bestimmten Entität
 
 ---
 
@@ -87,4 +87,4 @@
 | PANEL-03 | Phase 2 | Complete |
 | PANEL-04 | Phase 2 | Complete |
 | PANEL-05 | Phase 2 | Complete |
-| SVC-01 | Phase 3 | Pending |
+| SVC-01 | Phase 3 | Complete |

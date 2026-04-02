@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: milestone
 status: verifying
-stopped_at: Phase 3 context gathered
-last_updated: "2026-04-01T23:45:58.134Z"
+stopped_at: Completed 03-service-extension phase (all 3 plans)
+last_updated: "2026-04-01T23:59:46.930Z"
 last_activity: 2026-04-01
 progress:
   total_phases: 3
-  completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
+  completed_phases: 3
+  total_plans: 10
+  completed_plans: 10
   percent: 0
 ---
 
@@ -59,6 +59,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-custom-panel P02 | 129s | 1 tasks | 1 files |
 | Phase 02-custom-panel P01 | 231 | 3 tasks | 5 files |
 | Phase 02-custom-panel P03 | 208s | 2 tasks | 1 files |
+| Phase 03-service-extension P03 | 293s | 9 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,8 @@ Recent decisions affecting current work:
 - [Phase 02-custom-panel]: ws_get_entities uses @callback (sync), ws_render uses @websocket_api.async_response (async) per HA WebSocket API contract
 - [Phase 02-custom-panel]: @async_response wraps handler as sync callback — tests use sync call + async_block_till_done to drain background task
 - [Phase 02-custom-panel]: hass.http is None in unit tests — patch.object(hass, 'http', mock_http) required instead of patching on the None attribute
+- [Phase 03-service-extension]: force_render service handler as closure in async_setup capturing hass — idiomatic HA pattern, no class needed
+- [Phase 03-service-extension]: Service dispatches via hass.async_create_task(entity.async_force_render()) — fire-and-forget prevents blocking service handler (D-07)
 
 ### Pending Todos
 
@@ -96,6 +99,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-04-01T23:45:58.119Z
-Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-service-extension/03-CONTEXT.md
+Last session: 2026-04-01T23:59:46.915Z
+Stopped at: Completed 03-service-extension phase (all 3 plans)
+Resume file: None
