@@ -151,17 +151,33 @@ async def async_setup_entry(
     client: KrokiClient = entry_data["client"]
     cache: KrokiCache = entry_data["cache"]
 
-    for subentry in config_entry.subentries.values():
-        if subentry.subentry_type != "diagram":
-            continue
+    def _create_entity(subentry: ConfigSubentry) -> KrokiImageEntity:
         output_format_raw = subentry.data.get(CONF_OUTPUT_FORMAT)
         effective_output_format = (
             output_format_raw
             if output_format_raw in ("svg", "png")
             else config_entry.options.get(CONF_DEFAULT_OUTPUT_FORMAT, DEFAULT_OUTPUT_FORMAT)
         )
-        entity = KrokiImageEntity.from_subentry(hass, client, cache, subentry, effective_output_format)
-        async_add_entities([entity], config_subentry_id=subentry.subentry_id)
+        return KrokiImageEntity.from_subentry(hass, client, cache, subentry, effective_output_format)
+
+    for subentry in config_entry.subentries.values():
+        if subentry.subentry_type != "diagram":
+            continue
+        async_add_entities([_create_entity(subentry)], config_subentry_id=subentry.subentry_id)
+
+    known_subentry_ids: set[str] = {
+        sid for sid, sub in config_entry.subentries.items() if sub.subentry_type == "diagram"
+    }
+
+    async def _async_handle_entry_update(hass: HomeAssistant, entry: ConfigEntry) -> None:
+        nonlocal known_subentry_ids
+        current_ids = {sid for sid, sub in entry.subentries.items() if sub.subentry_type == "diagram"}
+        new_ids = current_ids - known_subentry_ids
+        known_subentry_ids = current_ids
+        for subentry_id in new_ids:
+            async_add_entities([_create_entity(entry.subentries[subentry_id])], config_subentry_id=subentry_id)
+
+    config_entry.async_on_unload(config_entry.add_update_listener(_async_handle_entry_update))
 
 
 class KrokiImageEntity(ImageEntity):

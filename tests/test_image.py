@@ -960,6 +960,62 @@ class TestAsyncSetupEntry:
         await async_setup_entry(hass, entry, mock_add_entities)
         assert len(entities_added) == 0
 
+    async def test_async_setup_entry_adds_entity_when_subentry_added_dynamically(
+        self, hass: HomeAssistant, mock_kroki_client: MagicMock
+    ) -> None:
+        """Entity appears immediately when a subentry is added after setup — no reload required."""
+        from homeassistant.config_entries import ConfigSubentry, ConfigSubentryDataWithId
+
+        from custom_components.kroki.cache import KrokiCache
+        from custom_components.kroki.image import KrokiImageEntity, async_setup_entry
+
+        # Start with one existing subentry
+        existing_id = "01JTEST00000000000000000010"
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            data={CONF_SERVER_URL: "https://kroki.example.com"},
+            options={},
+            subentries_data=(
+                ConfigSubentryDataWithId(
+                    subentry_id=existing_id,
+                    subentry_type="diagram",
+                    title="Existing",
+                    data={CONF_DIAGRAM_TYPE: "mermaid", CONF_DIAGRAM_SOURCE: "A-->B", CONF_OUTPUT_FORMAT: "svg"},
+                    unique_id=None,
+                ),
+            ),
+        )
+        entry.add_to_hass(hass)
+        cache = MagicMock(spec=KrokiCache)
+        hass.data.setdefault(DOMAIN, {})
+        hass.data[DOMAIN][entry.entry_id] = {"client": mock_kroki_client, "cache": cache}
+
+        entities_added = []
+
+        def mock_add_entities(entities, **kwargs):
+            entities_added.extend(entities)
+
+        await async_setup_entry(hass, entry, mock_add_entities)
+        assert len(entities_added) == 1  # existing subentry set up
+
+        # Dynamically add a new subentry via HA's config entries API
+        new_id = "01JTEST00000000000000000011"
+        new_subentry = ConfigSubentry(
+            subentry_id=new_id,
+            subentry_type="diagram",
+            title="New Diagram",
+            data={CONF_DIAGRAM_TYPE: "graphviz", CONF_DIAGRAM_SOURCE: "digraph {}", CONF_OUTPUT_FORMAT: "png"},
+            unique_id=None,
+        )
+        hass.config_entries.async_add_subentry(entry, new_subentry)
+        await hass.async_block_till_done()
+
+        assert len(entities_added) == 2
+        new_entity = entities_added[1]
+        assert isinstance(new_entity, KrokiImageEntity)
+        assert new_entity._attr_unique_id == new_id
+        assert new_entity._attr_name == "New Diagram"
+
 
 # ---------------------------------------------------------------------------
 # Tests for KrokiImageEntity.from_subentry (GUI entity factory)

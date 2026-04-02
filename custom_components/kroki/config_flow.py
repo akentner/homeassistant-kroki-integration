@@ -213,6 +213,8 @@ class DiagramSubentryFlowHandler(ConfigSubentryFlow):
         subentry = self._get_reconfigure_subentry()
         errors: dict[str, str] = {}
 
+        current = {CONF_NAME: subentry.title, **subentry.data}
+
         if user_input is not None:
             source = user_input[CONF_DIAGRAM_SOURCE]
             try:
@@ -221,7 +223,7 @@ class DiagramSubentryFlowHandler(ConfigSubentryFlow):
                 errors[CONF_DIAGRAM_SOURCE] = "invalid_template"
                 return self.async_show_form(
                     step_id="reconfigure",
-                    data_schema=self._build_schema(parent_entry, subentry.data),
+                    data_schema=self._build_schema(parent_entry, current),
                     errors=errors,
                     description_placeholders={"reason": str(err)},
                 )
@@ -239,7 +241,7 @@ class DiagramSubentryFlowHandler(ConfigSubentryFlow):
 
         return self.async_show_form(
             step_id="reconfigure",
-            data_schema=self._build_schema(parent_entry, subentry.data),
+            data_schema=self._build_schema(parent_entry, current),
             errors=errors,
         )
 

@@ -29,7 +29,7 @@ def _make_hass_with_client(hass, client, entry_id="test_entry"):
 async def test_ws_render_success(hass):
     """Successful render returns a data URL."""
     mock_client = AsyncMock()
-    mock_client.render.return_value = b"<svg>test</svg>"
+    mock_client.async_render_diagram.return_value = b"<svg>test</svg>"
     _make_hass_with_client(hass, mock_client)
 
     connection = _make_connection()
@@ -75,7 +75,7 @@ async def test_ws_render_no_server(hass):
 async def test_ws_render_connection_error(hass):
     """KrokiConnectionError maps to connection_error."""
     mock_client = AsyncMock()
-    mock_client.render.side_effect = KrokiConnectionError("timeout")
+    mock_client.async_render_diagram.side_effect = KrokiConnectionError("timeout")
     _make_hass_with_client(hass, mock_client)
 
     connection = _make_connection()
@@ -91,7 +91,7 @@ async def test_ws_render_connection_error(hass):
 async def test_ws_render_render_error(hass):
     """KrokiRenderError maps to render_error."""
     mock_client = AsyncMock()
-    mock_client.render.side_effect = KrokiRenderError("syntax error")
+    mock_client.async_render_diagram.side_effect = KrokiRenderError("syntax error")
     _make_hass_with_client(hass, mock_client)
 
     connection = _make_connection()
@@ -107,7 +107,7 @@ async def test_ws_render_render_error(hass):
 async def test_ws_render_png_format(hass):
     """PNG output format reflected in data URL."""
     mock_client = AsyncMock()
-    mock_client.render.return_value = b"\x89PNG..."
+    mock_client.async_render_diagram.return_value = b"\x89PNG..."
     _make_hass_with_client(hass, mock_client)
 
     connection = _make_connection()

@@ -383,6 +383,11 @@ async def test_subentry_reconfigure_flow(hass: HomeAssistant, mock_setup_entry) 
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "reconfigure"
 
+    # Verify form is pre-populated with current subentry values (name field)
+    schema_keys = {str(k): k for k in result["data_schema"].schema}
+    name_key = schema_keys["name"]
+    assert name_key.default() == "Original Name"
+
     result = await hass.config_entries.subentries.async_configure(
         result["flow_id"],
         user_input={

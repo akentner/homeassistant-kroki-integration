@@ -37,7 +37,7 @@ async def ws_render(hass: HomeAssistant, connection: websocket_api.ActiveConnect
 
     client = entry_data["client"]
     try:
-        rendered = await client.render(msg["diagram_type"], msg["output_format"], msg["source"])
+        rendered = await client.async_render_diagram(msg["diagram_type"], msg["source"], msg["output_format"])
     except KrokiConnectionError as err:
         connection.send_error(msg["id"], "connection_error", str(err))
         return
