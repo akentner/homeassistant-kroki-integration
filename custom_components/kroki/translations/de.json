@@ -37,11 +37,13 @@
         "description": "Optionen für diesen Kroki-Server konfigurieren.",
         "data": {
           "default_output_format": "Standard-Ausgabeformat",
-          "cache_max_size": "Maximale Cache-Größe"
+          "cache_max_size": "Maximale Cache-Größe",
+          "enable_panel": "Seitenleisten-Panel anzeigen"
         },
         "data_description": {
           "default_output_format": "Standard-Bildformat für neue Diagramme (SVG oder PNG).",
-          "cache_max_size": "Maximale Anzahl gecachter Bilder (1–500)."
+          "cache_max_size": "Maximale Anzahl gecachter Bilder (1–500).",
+          "enable_panel": "Den Eintrag 'Kroki Diagrams' in der Home Assistant Seitenleiste anzeigen."
         }
       }
     }

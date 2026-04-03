@@ -18,11 +18,13 @@ CONF_DEFAULT_ENTITY_ID = "default_entity_id"
 # Options keys (config entry options)
 CONF_CACHE_MAX_SIZE = "cache_max_size"
 CONF_DEFAULT_OUTPUT_FORMAT = "default_output_format"
+CONF_ENABLE_PANEL = "enable_panel"
 
 # Defaults
 DEFAULT_SERVER_URL = "https://kroki.io"
 DEFAULT_OUTPUT_FORMAT = "svg"
 DEFAULT_CACHE_MAX_SIZE = 50
+DEFAULT_ENABLE_PANEL = True
 
 # Content types
 CONTENT_TYPE_MAP = {

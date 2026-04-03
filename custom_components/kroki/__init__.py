@@ -17,8 +17,10 @@ from homeassistant.helpers.typing import ConfigType
 from .cache import KrokiCache
 from .const import (
     CONF_CACHE_MAX_SIZE,
+    CONF_ENABLE_PANEL,
     CONF_SERVER_URL,
     DEFAULT_CACHE_MAX_SIZE,
+    DEFAULT_ENABLE_PANEL,
     DEFAULT_SERVER_URL,
     DOMAIN,
     PLATFORMS,
@@ -40,7 +42,6 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Set up the Kroki integration from YAML."""
     # Register the reload service so it appears in Developer Tools
     await async_setup_reload_service(hass, DOMAIN, PLATFORMS)
-    await async_setup_panel(hass)
     async_setup_ws_api(hass)
 
     async def _async_handle_force_render(call: ServiceCall) -> None:
@@ -90,6 +91,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: KrokiConfigEntry) -> boo
 
     hass.data[DOMAIN][entry.entry_id] = {"client": client, "cache": cache}
 
+    enable_panel = entry.options.get(CONF_ENABLE_PANEL, DEFAULT_ENABLE_PANEL)
+    if enable_panel and "panel_entry_id" not in hass.data[DOMAIN]:
+        await async_setup_panel(hass)
+        hass.data[DOMAIN]["panel_entry_id"] = entry.entry_id
+
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
@@ -99,4 +105,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: KrokiConfigEntry) -> bo
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id, None)
+        if hass.data[DOMAIN].get("panel_entry_id") == entry.entry_id:
+            from homeassistant.components import frontend
+
+            frontend.async_remove_panel(hass, "kroki")
+            hass.data[DOMAIN].pop("panel_entry_id")
     return unload_ok

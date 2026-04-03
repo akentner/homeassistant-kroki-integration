@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Interactive release script for homeassistant-kroki-integration.
-# Usage: ./scripts/release.sh  (or: make release)
+# Usage: ./scripts/release.sh [VERSION]  (or: make release [VERSION=x.y.z])
 set -euo pipefail
 
 MANIFEST="custom_components/kroki/manifest.json"
@@ -63,34 +63,42 @@ echo ""
 # 3. Ask for new version
 # ---------------------------------------------------------------------------
 
-SUGGEST_PATCH=$(bump_version "$CURRENT_VERSION" patch)
-SUGGEST_MINOR=$(bump_version "$CURRENT_VERSION" minor)
-SUGGEST_MAJOR=$(bump_version "$CURRENT_VERSION" major)
-
-echo "Suggested versions:"
-echo "  [1] patch → ${SUGGEST_PATCH}"
-echo "  [2] minor → ${SUGGEST_MINOR}"
-echo "  [3] major → ${SUGGEST_MAJOR}"
-echo "  [4] custom"
-echo ""
-
-read -rp "Choose [1/2/3/4]: " CHOICE
-case "$CHOICE" in
-    1) NEW_VERSION="$SUGGEST_PATCH" ;;
-    2) NEW_VERSION="$SUGGEST_MINOR" ;;
-    3) NEW_VERSION="$SUGGEST_MAJOR" ;;
-    4)
-        read -rp "Enter version (without 'v'): " NEW_VERSION
-        if ! [[ "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)(\.[0-9]+)?)?$ ]]; then
-            red "ERROR: Invalid version format '${NEW_VERSION}'. Expected X.Y.Z or X.Y.Z-alpha.N / -beta.N / -rc.N"
-            exit 1
-        fi
-        ;;
-    *)
-        red "Invalid choice."
+if [[ -n "${1:-}" ]]; then
+    NEW_VERSION="${1#v}"  # strip leading 'v' if present
+    if ! [[ "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)(\.[0-9]+)?)?$ ]]; then
+        red "ERROR: Invalid version format '${NEW_VERSION}'. Expected X.Y.Z or X.Y.Z-alpha.N / -beta.N / -rc.N"
         exit 1
-        ;;
-esac
+    fi
+else
+    SUGGEST_PATCH=$(bump_version "$CURRENT_VERSION" patch)
+    SUGGEST_MINOR=$(bump_version "$CURRENT_VERSION" minor)
+    SUGGEST_MAJOR=$(bump_version "$CURRENT_VERSION" major)
+
+    echo "Suggested versions:"
+    echo "  [1] patch → ${SUGGEST_PATCH}"
+    echo "  [2] minor → ${SUGGEST_MINOR}"
+    echo "  [3] major → ${SUGGEST_MAJOR}"
+    echo "  [4] custom"
+    echo ""
+
+    read -rp "Choose [1/2/3/4]: " CHOICE
+    case "$CHOICE" in
+        1) NEW_VERSION="$SUGGEST_PATCH" ;;
+        2) NEW_VERSION="$SUGGEST_MINOR" ;;
+        3) NEW_VERSION="$SUGGEST_MAJOR" ;;
+        4)
+            read -rp "Enter version (without 'v'): " NEW_VERSION
+            if ! [[ "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)(\.[0-9]+)?)?$ ]]; then
+                red "ERROR: Invalid version format '${NEW_VERSION}'. Expected X.Y.Z or X.Y.Z-alpha.N / -beta.N / -rc.N"
+                exit 1
+            fi
+            ;;
+        *)
+            red "Invalid choice."
+            exit 1
+            ;;
+    esac
+fi
 
 echo ""
 bold "New version: v${NEW_VERSION}"

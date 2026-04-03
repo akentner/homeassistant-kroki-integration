@@ -32,9 +32,11 @@ from .const import (
     CONF_DEFAULT_OUTPUT_FORMAT,
     CONF_DIAGRAM_SOURCE,
     CONF_DIAGRAM_TYPE,
+    CONF_ENABLE_PANEL,
     CONF_OUTPUT_FORMAT,
     CONF_SERVER_URL,
     DEFAULT_CACHE_MAX_SIZE,
+    DEFAULT_ENABLE_PANEL,
     DEFAULT_OUTPUT_FORMAT,
     DEFAULT_SERVER_URL,
     DOMAIN,
@@ -165,6 +167,10 @@ class KrokiOptionsFlow(OptionsFlow):
                         CONF_CACHE_MAX_SIZE,
                         default=self.config_entry.options.get(CONF_CACHE_MAX_SIZE, DEFAULT_CACHE_MAX_SIZE),
                     ): vol.All(int, vol.Range(min=1, max=500)),
+                    vol.Optional(
+                        CONF_ENABLE_PANEL,
+                        default=self.config_entry.options.get(CONF_ENABLE_PANEL, DEFAULT_ENABLE_PANEL),
+                    ): bool,
                 }
             ),
         )

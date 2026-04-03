@@ -37,11 +37,13 @@
         "description": "Configure options for this Kroki server.",
         "data": {
           "default_output_format": "Default output format",
-          "cache_max_size": "Maximum cache size"
+          "cache_max_size": "Maximum cache size",
+          "enable_panel": "Show sidebar panel"
         },
         "data_description": {
           "default_output_format": "Default image format for new diagrams (SVG or PNG).",
-          "cache_max_size": "Maximum number of rendered images to keep in the cache (1-500)."
+          "cache_max_size": "Maximum number of rendered images to keep in the cache (1-500).",
+          "enable_panel": "Show the 'Kroki Diagrams' entry in the Home Assistant sidebar."
         }
       }
     }
