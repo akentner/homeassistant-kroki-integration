@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -165,17 +166,36 @@ async def async_setup_entry(
             continue
         async_add_entities([_create_entity(subentry)], config_subentry_id=subentry.subentry_id)
 
+    def _subentry_fingerprint(sub: ConfigSubentry) -> str:
+        raw = f"{sub.title}:{json.dumps(dict(sub.data), sort_keys=True)}"
+        return hashlib.sha256(raw.encode()).hexdigest()
+
     known_subentry_ids: set[str] = {
         sid for sid, sub in config_entry.subentries.items() if sub.subentry_type == "diagram"
     }
+    known_fingerprints: dict[str, str] = {
+        sid: _subentry_fingerprint(sub)
+        for sid, sub in config_entry.subentries.items()
+        if sub.subentry_type == "diagram"
+    }
 
     async def _async_handle_entry_update(hass: HomeAssistant, entry: ConfigEntry) -> None:
-        nonlocal known_subentry_ids
+        nonlocal known_subentry_ids, known_fingerprints
         current_ids = {sid for sid, sub in entry.subentries.items() if sub.subentry_type == "diagram"}
         new_ids = current_ids - known_subentry_ids
+        changed_ids = {
+            sid
+            for sid in known_subentry_ids & current_ids
+            if _subentry_fingerprint(entry.subentries[sid]) != known_fingerprints.get(sid)
+        }
         known_subentry_ids = current_ids
+        known_fingerprints = {
+            sid: _subentry_fingerprint(sub) for sid, sub in entry.subentries.items() if sub.subentry_type == "diagram"
+        }
         for subentry_id in new_ids:
             async_add_entities([_create_entity(entry.subentries[subentry_id])], config_subentry_id=subentry_id)
+        if changed_ids:
+            hass.async_create_task(hass.config_entries.async_reload(entry.entry_id))
 
     config_entry.async_on_unload(config_entry.add_update_listener(_async_handle_entry_update))
 

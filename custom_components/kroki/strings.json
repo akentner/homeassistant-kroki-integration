@@ -46,6 +46,37 @@
       }
     }
   },
+  "config_subentries": {
+    "diagram": {
+      "entry_type": "Diagram",
+      "initiate_flow": {
+        "user": "Add Diagram"
+      },
+      "step": {
+        "user": {
+          "title": "Add Diagram",
+          "data": {
+            "name": "Name",
+            "diagram_type": "Diagram Type",
+            "diagram_source": "Diagram Source",
+            "output_format": "Output Format"
+          }
+        },
+        "reconfigure": {
+          "title": "Edit Diagram",
+          "data": {
+            "name": "Name",
+            "diagram_type": "Diagram Type",
+            "diagram_source": "Diagram Source",
+            "output_format": "Output Format"
+          }
+        }
+      },
+      "error": {
+        "invalid_template": "Invalid Jinja2 template: {reason}"
+      }
+    }
+  },
   "services": {
     "reload": {
       "name": "Reload",
