@@ -11,3 +11,12 @@ venv/
 *.egg
 .eggs/
 .idea
+
+# Claude Code — lokale Konfiguration, nicht teilen
+.claude/settings.local.json
+.claude/worktrees/
+
+# GSD Planning — temporäre/persönliche Artefakte
+.planning/research/
+.planning/notes/
+.planning/codebase/
