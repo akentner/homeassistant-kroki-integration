@@ -2,80 +2,79 @@
 
 ## What This Is
 
-Eine Home Assistant Custom Integration, die Diagram-as-Code-Markup (GraphViz, Mermaid, PlantUML, etc.) via einen Kroki-Server in Bilder rendert und als HA Image-Entitäten bereitstellt. Nutzer können damit dynamische, template-basierte Diagramme in Dashboards und Automationen einsetzen.
+A Home Assistant custom integration that renders Diagram-as-Code markup (GraphViz, Mermaid, PlantUML, 28+ types) via a Kroki server into images served as HA Image entities. Supports full GUI entity management via Config Subentries, Jinja2 template auto-updates, a custom sidebar panel with live preview, and parallel YAML configuration.
 
 ## Core Value
 
-Kroki-Diagramm-Entitäten müssen vollständig über die Home Assistant GUI erstellt, bearbeitet und gelöscht werden können — ohne YAML bearbeiten zu müssen.
+Kroki diagram entities are fully manageable via the Home Assistant GUI — no YAML editing required.
 
 ## Requirements
 
 ### Validated
 
-- ✓ Kroki-Server-Verbindung via Config Flow (UI) — existing
-- ✓ YAML-basierte Diagramm-Entitäten mit Jinja2-Templates — existing
-- ✓ Automatisches Re-Rendering bei Entity-State-Änderungen — existing
-- ✓ SHA256-basierter LRU-Disk-Cache für gerenderte Bilder — existing
-- ✓ SVG- und PNG-Output — existing
-- ✓ Unterstützung aller 28+ Kroki-Diagrammtypen — existing
-- ✓ YAML-Reload ohne HA-Neustart — existing
-- ✓ Fehler-Placeholder-SVG bei Render-Fehlern — existing
-- ✓ Options Flow für Default-Format und Cache-Größe — existing
-- ✓ Mehrere Kroki-Server konfigurierbar — existing
+- ✓ Kroki server connection via Config Flow (UI) — v1.x
+- ✓ YAML-based diagram entities with Jinja2 templates — v1.x
+- ✓ Automatic re-render on entity state changes — v1.x
+- ✓ SHA256-based LRU disk cache for rendered images — v1.x
+- ✓ SVG and PNG output — v1.x
+- ✓ All 28+ Kroki diagram types supported — v1.x
+- ✓ YAML reload without HA restart — v1.x
+- ✓ Error placeholder SVG on render failure — v1.x
+- ✓ Options Flow for default format and cache size — v1.x
+- ✓ Multiple Kroki servers configurable — v1.x
+- ✓ Diagram entities created, edited, deleted via HA GUI (Config Subentries) — v2.0
+- ✓ Stable `unique_id = subentry_id` — entity_id survives renames — v2.0
+- ✓ Jinja2 template support in GUI-created entities with auto-update — v2.0
+- ✓ YAML and GUI entities coexist without conflict or migration — v2.0
+- ✓ Custom sidebar panel with split-pane editor and live preview — v2.0
+- ✓ Entity browser in panel for inserting entity refs into templates — v2.0
+- ✓ `kroki.force_render` service for manual re-render with cache eviction — v2.0
 
 ### Active
 
-- [ ] Diagramm-Entitäten über die GUI anlegen (Config Entry pro Diagramm)
-- [ ] Diagramm-Entitäten über die GUI bearbeiten (Name, Typ, Source, Format)
-- [ ] Diagramm-Entitäten über die GUI löschen
-- [ ] Server-Auswahl beim Erstellen eines Diagramms (Dropdown aller konfigurierten Server)
-- [ ] Volle Jinja2-Template-Unterstützung in GUI-erstellten Diagrammen
-- [ ] Live-Vorschau im Options Flow beim Bearbeiten
-  - ✓ Frontend-Panel mit Editor und Live-Vorschau nebeneinander — Validated in Phase 02: Custom Panel
-  - ✓ Diagrammtyp-Auswahl im Panel — Validated in Phase 02: Custom Panel
-  - ✓ Entity-Browser im Panel zum Einfügen von Entity-States in Templates — Validated in Phase 02: Custom Panel
-- [ ] YAML-Modus bleibt parallel voll funktionsfähig
+*(No active requirements — planning next milestone)*
 
 ### Out of Scope
 
-- Entity-Picker / Autocomplete im HA Options Flow — HA Config Flow UI unterstützt keine benutzerdefinierten Widgets
-- Panel für Mobile — Desktop-first, Mobile-Optimierung ist ein späterer Milestone
-- Migration bestehender YAML-Diagramme in Config Entries — Koexistenz statt Migration
-
-## Current Milestone: v2.0 GUI Entity Management
-
-**Goal:** Kroki-Diagramm-Entitäten vollständig über die Home Assistant GUI anlegen, bearbeiten und löschen — ohne YAML bearbeiten zu müssen.
-
-**Target features:**
-- Config Subentries: Diagramme per UI anlegen/bearbeiten/löschen
-- TemplateSelector mit Full-Screen-Editor für Diagram-Source
-- Jinja2-Template-Unterstützung in GUI-Diagrammen
-- Server-Zuweisung per Subentry (Diagramm gehört zu Server-Config-Entry)
-- YAML-Modus bleibt vollständig funktionsfähig (paralleler Pfad)
-- Custom Panel mit Split-Pane Editor + Live-Vorschau nebeneinander
+| Feature | Reason |
+|---------|--------|
+| Entity-Picker / Autocomplete in Config Flow | HA Config Flow UI does not support custom widgets |
+| YAML-to-GUI migration | Coexistence is sufficient; no user request |
+| Bidirectional YAML-GUI sync | Maintenance trap, conflicts unavoidable |
+| Multiple diagrams per subentry | 1:1 granularity is the correct HA pattern |
+| CodeMirror in panel | Vanilla textarea sufficient for MVP; deferred |
+| Mobile panel optimization | Desktop-first; deferred to later milestone |
 
 ## Context
 
-- **Brownfield:** Bestehende Integration mit funktionierendem YAML-Modus, Config Flow für Server, Tests und CI
-- **HA-Ökosystem:** Config Entries sind der HA-Standard für UI-konfigurierte Entitäten. Diagramme werden als separate Config Entries oder Sub-Entries gespeichert
-- **Architektur-Herausforderung:** Aktuell kommt `async_setup_platform` (YAML) zum Einsatz. GUI-Diagramme müssen über `async_setup_entry` und Platform-Forwarding laufen — zwei parallele Pfade für die Image-Platform
-- **Frontend-Panel:** HA unterstützt Custom Panels via `async_register_panel`. Das Panel braucht eigenes JS/HTML, das mit der HA-Frontend-API und dem Kroki-Server kommuniziert
-
-## Constraints
-
-- **HA API:** Config Flow UI ist auf Standard-Form-Elemente beschränkt (Textfelder, Dropdowns, Checkboxen) — kein Code-Editor-Widget nativ möglich
-- **Kompatibilität:** YAML-Modus muss unverändert weiter funktionieren
-- **HA Version:** Minimum 2024.7.0 (HACS-Deklaration)
-- **Priorität:** CRUD via GUI ist Kernfunktion, Panel ist Erweiterung
+- **Shipped:** v2.0 — 3 phases, 10 plans, 121 passing tests
+- **Codebase:** 1,296 LOC Python (integration) + 2,483 LOC Python (tests)
+- **Tech stack:** Python 3.13, Home Assistant Config Subentries, LitElement (vanilla), WebSocket API
+- **Distribution:** HACS custom integration
+- **Known tech debt:**
+  - Phases 1 and 3 have no VERIFICATION.md — implementation is clearly present but not formally verified
+  - `hass.data.get("entity_components")` in force_render uses HA-internal dict key — may break on future HA versions
+  - Phase 2 tests mock KrokiClient — real client-to-ws-api integration not covered by unit tests
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| GUI-Diagramme als Config Entries | HA-Standard für UI-konfigurierte Entitäten, persistiert automatisch | — Pending |
-| Server-Auswahl via Dropdown | Bei mehreren Servern soll der Nutzer frei wählen können | — Pending |
-| YAML und GUI koexistieren | Bestehende YAML-Nutzer nicht brechen, beide Wege haben Vorteile | — Pending |
-| Panel + Options Flow für Vorschau | Options Flow für Quick-Edit, Panel für komfortables Arbeiten mit Editor | — Pending |
+| GUI diagrams as Config Subentries | HA standard for UI-configured entities, auto-persisted | ✓ Good — clean HA pattern, subentry_id provides stable unique_id |
+| `unique_id = subentry_id` (never name-derived) | Prevents entity registry collisions, survives renames | ✓ Good — critical correctness property, validated by tests |
+| YAML and GUI coexist (dual path in image.py) | Don't break existing YAML users | ✓ Good — zero regressions, 104 → 121 tests all green |
+| Panel uses LitElement + textarea (no CodeMirror) | No build tooling in repo, HA LitElement available | ✓ Good — MVP shipped without build step |
+| LitElement from CDN (jsdelivr/lit@3) | HA bundled lit not reliably globally exported | ✓ Good — no import issues |
+| `@async_response` for ws_render handler | HA WebSocket API contract for async handlers | ✓ Good — required for correct async behavior |
+| force_render as closure in async_setup | Idiomatic HA pattern, no class needed | ✓ Good — simple, maintainable |
+| Service dispatches via `async_create_task` | Fire-and-forget prevents blocking service handler | ✓ Good — follows D-07 pattern |
+
+## Constraints
+
+- **HA API:** Config Flow UI limited to standard form elements (no code editor widget natively)
+- **Compatibility:** YAML mode must continue working unchanged
+- **HA Version:** Minimum 2024.7.0 (HACS declaration)
+- **Distribution:** HACS — no PyPI packaging required
 
 ## Evolution
 
@@ -95,4 +94,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-04-02 — Phase 02 complete: sidebar panel with split-pane editor, live preview, and entity browser delivered*
+*Last updated: 2026-04-03 after v2.0 milestone — GUI entity management shipped*
