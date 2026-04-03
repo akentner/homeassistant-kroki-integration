@@ -183,6 +183,7 @@ read -rp "Enter release notes (leave empty to auto-generate from commits): " REL
 echo ""
 
 TAG="v${NEW_VERSION}"
+CURRENT_COMMIT=$(git rev-parse HEAD)
 
 # Mark as pre-release if version contains a pre-release suffix
 PRERELEASE_FLAG=""
@@ -194,11 +195,13 @@ if [[ -z "$RELEASE_NOTES" ]]; then
     gh release create "$TAG" \
         --title "$TAG" \
         --generate-notes \
+        --target "$CURRENT_COMMIT" \
         $PRERELEASE_FLAG
 else
     gh release create "$TAG" \
         --title "$TAG" \
         --notes "$RELEASE_NOTES" \
+        --target "$CURRENT_COMMIT" \
         $PRERELEASE_FLAG
 fi
 
