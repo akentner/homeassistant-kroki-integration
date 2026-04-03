@@ -42,5 +42,5 @@ validate: ## Run HA hassfest and HACS validation (requires Docker)
 	pre-commit run hassfest --all-files
 	pre-commit run hacs-validate --all-files
 
-release: ## Interactive release: bump version, commit, push, create GitHub release
-	@bash scripts/release.sh
+release: ## Interactive release: bump version, commit, push, create GitHub release (VERSION=x.y.z optional)
+	@bash scripts/release.sh $(VERSION)

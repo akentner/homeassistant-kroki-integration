@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Interactive release script for homeassistant-kroki-integration.
-# Usage: ./scripts/release.sh  (or: make release)
+# Usage: ./scripts/release.sh [VERSION]  (or: make release [VERSION=x.y.z])
 set -euo pipefail
 
 MANIFEST="custom_components/kroki/manifest.json"
@@ -16,8 +16,10 @@ bold()  { printf '\033[1m%s\033[0m\n' "$*"; }
 
 bump_version() {
     local version="$1" part="$2"
-    local major minor patch
-    IFS='.' read -r major minor patch <<< "$version"
+    local base major minor patch
+    # Strip pre-release suffix (e.g. -alpha.1) before arithmetic
+    base="${version%%-*}"
+    IFS='.' read -r major minor patch <<< "$base"
     case "$part" in
         major) echo "$((major + 1)).0.0" ;;
         minor) echo "${major}.$((minor + 1)).0" ;;
@@ -61,34 +63,42 @@ echo ""
 # 3. Ask for new version
 # ---------------------------------------------------------------------------
 
-SUGGEST_PATCH=$(bump_version "$CURRENT_VERSION" patch)
-SUGGEST_MINOR=$(bump_version "$CURRENT_VERSION" minor)
-SUGGEST_MAJOR=$(bump_version "$CURRENT_VERSION" major)
-
-echo "Suggested versions:"
-echo "  [1] patch → ${SUGGEST_PATCH}"
-echo "  [2] minor → ${SUGGEST_MINOR}"
-echo "  [3] major → ${SUGGEST_MAJOR}"
-echo "  [4] custom"
-echo ""
-
-read -rp "Choose [1/2/3/4]: " CHOICE
-case "$CHOICE" in
-    1) NEW_VERSION="$SUGGEST_PATCH" ;;
-    2) NEW_VERSION="$SUGGEST_MINOR" ;;
-    3) NEW_VERSION="$SUGGEST_MAJOR" ;;
-    4)
-        read -rp "Enter version (without 'v'): " NEW_VERSION
-        if ! [[ "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            red "ERROR: Invalid version format '${NEW_VERSION}'. Expected X.Y.Z"
-            exit 1
-        fi
-        ;;
-    *)
-        red "Invalid choice."
+if [[ -n "${1:-}" ]]; then
+    NEW_VERSION="${1#v}"  # strip leading 'v' if present
+    if ! [[ "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)(\.[0-9]+)?)?$ ]]; then
+        red "ERROR: Invalid version format '${NEW_VERSION}'. Expected X.Y.Z or X.Y.Z-alpha.N / -beta.N / -rc.N"
         exit 1
-        ;;
-esac
+    fi
+else
+    SUGGEST_PATCH=$(bump_version "$CURRENT_VERSION" patch)
+    SUGGEST_MINOR=$(bump_version "$CURRENT_VERSION" minor)
+    SUGGEST_MAJOR=$(bump_version "$CURRENT_VERSION" major)
+
+    echo "Suggested versions:"
+    echo "  [1] patch → ${SUGGEST_PATCH}"
+    echo "  [2] minor → ${SUGGEST_MINOR}"
+    echo "  [3] major → ${SUGGEST_MAJOR}"
+    echo "  [4] custom"
+    echo ""
+
+    read -rp "Choose [1/2/3/4]: " CHOICE
+    case "$CHOICE" in
+        1) NEW_VERSION="$SUGGEST_PATCH" ;;
+        2) NEW_VERSION="$SUGGEST_MINOR" ;;
+        3) NEW_VERSION="$SUGGEST_MAJOR" ;;
+        4)
+            read -rp "Enter version (without 'v'): " NEW_VERSION
+            if ! [[ "$NEW_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)(\.[0-9]+)?)?$ ]]; then
+                red "ERROR: Invalid version format '${NEW_VERSION}'. Expected X.Y.Z or X.Y.Z-alpha.N / -beta.N / -rc.N"
+                exit 1
+            fi
+            ;;
+        *)
+            red "Invalid choice."
+            exit 1
+            ;;
+    esac
+fi
 
 echo ""
 bold "New version: v${NEW_VERSION}"
@@ -105,6 +115,13 @@ data = json.loads(path.read_text())
 data["version"] = "${NEW_VERSION}"
 path.write_text(json.dumps(data, indent=2) + "\n")
 EOF
+
+MANIFEST_VERSION=$(python3 -c "import json; print(json.load(open('${MANIFEST}'))['version'])")
+if [[ "$MANIFEST_VERSION" != "$NEW_VERSION" ]]; then
+    red "ERROR: Manifest version mismatch after update: expected '${NEW_VERSION}', got '${MANIFEST_VERSION}'."
+    git checkout -- "$MANIFEST"
+    exit 1
+fi
 
 green "Updated ${MANIFEST} → version ${NEW_VERSION}"
 
@@ -181,15 +198,26 @@ read -rp "Enter release notes (leave empty to auto-generate from commits): " REL
 echo ""
 
 TAG="v${NEW_VERSION}"
+CURRENT_COMMIT=$(git rev-parse HEAD)
+
+# Mark as pre-release if version contains a pre-release suffix
+PRERELEASE_FLAG=""
+if [[ "$NEW_VERSION" =~ -(alpha|beta|rc) ]]; then
+    PRERELEASE_FLAG="--prerelease"
+fi
 
 if [[ -z "$RELEASE_NOTES" ]]; then
     gh release create "$TAG" \
         --title "$TAG" \
-        --generate-notes
+        --generate-notes \
+        --target "$CURRENT_COMMIT" \
+        $PRERELEASE_FLAG
 else
     gh release create "$TAG" \
         --title "$TAG" \
-        --notes "$RELEASE_NOTES"
+        --notes "$RELEASE_NOTES" \
+        --target "$CURRENT_COMMIT" \
+        $PRERELEASE_FLAG
 fi
 
 echo ""

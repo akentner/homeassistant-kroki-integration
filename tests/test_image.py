@@ -833,3 +833,339 @@ class TestAsyncSetupPlatform:
         assert len(added_entities) == 1
         assert added_entities[0]._output_format == "png"
         assert added_entities[0].content_type == "image/png"
+
+
+# ---------------------------------------------------------------------------
+# Tests for async_setup_entry (GUI path)
+# ---------------------------------------------------------------------------
+
+
+class TestAsyncSetupEntry:
+    """Tests for the async_setup_entry function (GUI diagram entities)."""
+
+    async def test_async_setup_entry_creates_entities_for_subentries(
+        self, hass: HomeAssistant, mock_kroki_client: MagicMock, tmp_path: Path
+    ) -> None:
+        """Test that async_setup_entry creates one entity per diagram subentry."""
+        from homeassistant.config_entries import ConfigSubentryDataWithId
+
+        from custom_components.kroki.cache import KrokiCache
+        from custom_components.kroki.image import KrokiImageEntity, async_setup_entry
+
+        subentry_id = "01JTEST00000000000000000001"
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            data={CONF_SERVER_URL: "https://kroki.example.com"},
+            options={},
+            subentries_data=(
+                ConfigSubentryDataWithId(
+                    subentry_id=subentry_id,
+                    subentry_type="diagram",
+                    title="My Mermaid",
+                    data={
+                        CONF_DIAGRAM_TYPE: "mermaid",
+                        CONF_DIAGRAM_SOURCE: "graph TD\nA-->B",
+                        CONF_OUTPUT_FORMAT: "svg",
+                    },
+                    unique_id=None,
+                ),
+            ),
+        )
+        entry.add_to_hass(hass)
+
+        # Pre-populate hass.data as __init__.async_setup_entry would
+        cache = MagicMock(spec=KrokiCache)
+        hass.data.setdefault(DOMAIN, {})
+        hass.data[DOMAIN][entry.entry_id] = {
+            "client": mock_kroki_client,
+            "cache": cache,
+        }
+
+        entities_added = []
+
+        def mock_add_entities(entities, **kwargs):
+            entities_added.extend(entities)
+
+        await async_setup_entry(hass, entry, mock_add_entities)
+
+        assert len(entities_added) == 1
+        entity = entities_added[0]
+        assert isinstance(entity, KrokiImageEntity)
+        assert entity._attr_unique_id == subentry_id
+        assert entity._attr_name == "My Mermaid"
+        assert entity._diagram_type == "mermaid"
+
+    async def test_async_setup_entry_skips_non_diagram_subentries(
+        self, hass: HomeAssistant, mock_kroki_client: MagicMock
+    ) -> None:
+        """Test that subentries with wrong type are skipped."""
+        from homeassistant.config_entries import ConfigSubentryDataWithId
+
+        from custom_components.kroki.cache import KrokiCache
+        from custom_components.kroki.image import async_setup_entry
+
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            data={CONF_SERVER_URL: "https://kroki.example.com"},
+            subentries_data=(
+                ConfigSubentryDataWithId(
+                    subentry_id="01JTEST00000000000000000002",
+                    subentry_type="other_type",
+                    title="Not a diagram",
+                    data={},
+                    unique_id=None,
+                ),
+            ),
+        )
+        entry.add_to_hass(hass)
+        cache = MagicMock(spec=KrokiCache)
+        hass.data.setdefault(DOMAIN, {})
+        hass.data[DOMAIN][entry.entry_id] = {
+            "client": mock_kroki_client,
+            "cache": cache,
+        }
+
+        entities_added = []
+
+        def mock_add_entities(entities, **kwargs):
+            entities_added.extend(entities)
+
+        await async_setup_entry(hass, entry, mock_add_entities)
+        assert len(entities_added) == 0
+
+    async def test_async_setup_entry_no_subentries_creates_no_entities(
+        self, hass: HomeAssistant, mock_kroki_client: MagicMock
+    ) -> None:
+        """Test that no entities are created when there are no subentries."""
+        from custom_components.kroki.cache import KrokiCache
+        from custom_components.kroki.image import async_setup_entry
+
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            data={CONF_SERVER_URL: "https://kroki.example.com"},
+        )
+        entry.add_to_hass(hass)
+        cache = MagicMock(spec=KrokiCache)
+        hass.data.setdefault(DOMAIN, {})
+        hass.data[DOMAIN][entry.entry_id] = {
+            "client": mock_kroki_client,
+            "cache": cache,
+        }
+
+        entities_added = []
+
+        def mock_add_entities(entities, **kwargs):
+            entities_added.extend(entities)
+
+        await async_setup_entry(hass, entry, mock_add_entities)
+        assert len(entities_added) == 0
+
+    async def test_async_setup_entry_adds_entity_when_subentry_added_dynamically(
+        self, hass: HomeAssistant, mock_kroki_client: MagicMock
+    ) -> None:
+        """Entity appears immediately when a subentry is added after setup — no reload required."""
+        from homeassistant.config_entries import ConfigSubentry, ConfigSubentryDataWithId
+
+        from custom_components.kroki.cache import KrokiCache
+        from custom_components.kroki.image import KrokiImageEntity, async_setup_entry
+
+        # Start with one existing subentry
+        existing_id = "01JTEST00000000000000000010"
+        entry = MockConfigEntry(
+            domain=DOMAIN,
+            data={CONF_SERVER_URL: "https://kroki.example.com"},
+            options={},
+            subentries_data=(
+                ConfigSubentryDataWithId(
+                    subentry_id=existing_id,
+                    subentry_type="diagram",
+                    title="Existing",
+                    data={CONF_DIAGRAM_TYPE: "mermaid", CONF_DIAGRAM_SOURCE: "A-->B", CONF_OUTPUT_FORMAT: "svg"},
+                    unique_id=None,
+                ),
+            ),
+        )
+        entry.add_to_hass(hass)
+        cache = MagicMock(spec=KrokiCache)
+        hass.data.setdefault(DOMAIN, {})
+        hass.data[DOMAIN][entry.entry_id] = {"client": mock_kroki_client, "cache": cache}
+
+        entities_added = []
+
+        def mock_add_entities(entities, **kwargs):
+            entities_added.extend(entities)
+
+        await async_setup_entry(hass, entry, mock_add_entities)
+        assert len(entities_added) == 1  # existing subentry set up
+
+        # Dynamically add a new subentry via HA's config entries API
+        new_id = "01JTEST00000000000000000011"
+        new_subentry = ConfigSubentry(
+            subentry_id=new_id,
+            subentry_type="diagram",
+            title="New Diagram",
+            data={CONF_DIAGRAM_TYPE: "graphviz", CONF_DIAGRAM_SOURCE: "digraph {}", CONF_OUTPUT_FORMAT: "png"},
+            unique_id=None,
+        )
+        hass.config_entries.async_add_subentry(entry, new_subentry)
+        await hass.async_block_till_done()
+
+        assert len(entities_added) == 2
+        new_entity = entities_added[1]
+        assert isinstance(new_entity, KrokiImageEntity)
+        assert new_entity._attr_unique_id == new_id
+        assert new_entity._attr_name == "New Diagram"
+
+
+# ---------------------------------------------------------------------------
+# Tests for KrokiImageEntity.from_subentry (GUI entity factory)
+# ---------------------------------------------------------------------------
+
+
+class TestFromSubentry:
+    """Tests for KrokiImageEntity.from_subentry class method."""
+
+    def test_from_subentry_unique_id_is_subentry_id(
+        self, hass: HomeAssistant, mock_kroki_client: MagicMock, mock_config_subentry
+    ) -> None:
+        """Test that from_subentry sets unique_id = subentry_id (not name-derived). Pitfall 1."""
+        from custom_components.kroki.cache import KrokiCache
+
+        cache = MagicMock(spec=KrokiCache)
+        entity = KrokiImageEntity.from_subentry(hass, mock_kroki_client, cache, mock_config_subentry, "svg")
+
+        assert entity._attr_unique_id == mock_config_subentry.subentry_id
+        # Must NOT be name-derived (Pitfall 1)
+        assert entity._attr_unique_id != f"kroki_{mock_config_subentry.title.lower().replace(' ', '_')}"
+
+    def test_from_subentry_and_yaml_unique_ids_do_not_collide(
+        self, hass: HomeAssistant, mock_kroki_client: MagicMock
+    ) -> None:
+        """Test that GUI (subentry_id) and YAML (kroki_slugified) unique_ids never collide. Pitfall 1."""
+        from homeassistant.config_entries import ConfigSubentry
+        from homeassistant.helpers.template import Template
+
+        from custom_components.kroki.cache import KrokiCache
+
+        cache = MagicMock(spec=KrokiCache)
+
+        # GUI entity: uses subentry_id as unique_id
+        subentry = ConfigSubentry(
+            subentry_id="01JTEST00000000000000000003",
+            subentry_type="diagram",
+            title="Network",  # same name as YAML entity below
+            data={
+                CONF_DIAGRAM_TYPE: "mermaid",
+                CONF_DIAGRAM_SOURCE: "graph TD\nA-->B",
+                CONF_OUTPUT_FORMAT: "svg",
+            },
+            unique_id=None,
+        )
+        gui_entity = KrokiImageEntity.from_subentry(hass, mock_kroki_client, cache, subentry, "svg")
+
+        # YAML entity: uses name-derived unique_id "kroki_network"
+        yaml_entity = KrokiImageEntity(
+            hass=hass,
+            client=mock_kroki_client,
+            cache=cache,
+            name="Network",
+            diagram_type="mermaid",
+            diagram_source_template=Template("graph TD\nA-->B", hass),
+            output_format="svg",
+        )
+
+        # unique_ids must differ
+        assert gui_entity._attr_unique_id != yaml_entity._attr_unique_id
+        # GUI entity uses ULID (subentry_id), not name-derived
+        assert gui_entity._attr_unique_id == "01JTEST00000000000000000003"
+        assert yaml_entity._attr_unique_id == "kroki_network"
+
+    def test_from_subentry_server_default_format_resolved(
+        self, hass: HomeAssistant, mock_kroki_client: MagicMock
+    ) -> None:
+        """Test that from_subentry uses the effective_output_format parameter."""
+        from homeassistant.config_entries import ConfigSubentry
+
+        from custom_components.kroki.cache import KrokiCache
+
+        cache = MagicMock(spec=KrokiCache)
+
+        subentry = ConfigSubentry(
+            subentry_id="01JTEST00000000000000000004",
+            subentry_type="diagram",
+            title="PNG Diagram",
+            data={
+                CONF_DIAGRAM_TYPE: "plantuml",
+                CONF_DIAGRAM_SOURCE: "@startuml\nA->B\n@enduml",
+                CONF_OUTPUT_FORMAT: "server_default",
+            },
+            unique_id=None,
+        )
+        # The caller (async_setup_entry) resolves server_default → effective_output_format
+        entity = KrokiImageEntity.from_subentry(hass, mock_kroki_client, cache, subentry, "png")
+
+        assert entity._output_format == "png"
+        assert entity.content_type == "image/png"
+
+
+# ---------------------------------------------------------------------------
+# KrokiImageEntity.async_force_render()
+# ---------------------------------------------------------------------------
+
+
+async def test_force_render_clears_state_and_triggers_refresh(hass: HomeAssistant, mock_kroki_client, tmp_path) -> None:
+    """force_render clears hash, evicts cache, clears image, triggers refresh."""
+    from unittest.mock import MagicMock
+
+    cache = KrokiCache(tmp_path / "test_cache_fr1", max_size=10)
+    entity = _make_entity(hass, mock_kroki_client, cache)
+
+    # Simulate a previously rendered state
+    entity._current_hash = "somehash"
+    entity._current_image = b"<svg/>"
+
+    mock_unsub = MagicMock()
+    entity._unsub_track = mock_unsub
+
+    # Seed the cache with the current hash so evict has something to remove
+    cache.put("somehash", b"<svg/>", "svg")
+
+    await entity.async_force_render()
+
+    assert entity._current_hash is None
+    assert entity._current_image is None
+    assert cache.get("somehash") is None  # disk cache evicted
+    mock_unsub.async_refresh.assert_called_once()
+
+
+async def test_force_render_noop_evict_when_no_hash(hass: HomeAssistant, mock_kroki_client, tmp_path) -> None:
+    """force_render skips disk eviction when entity has never rendered (D-04)."""
+    from unittest.mock import MagicMock
+
+    cache = KrokiCache(tmp_path / "test_cache_fr2", max_size=10)
+    entity = _make_entity(hass, mock_kroki_client, cache)
+
+    # Entity has never rendered: _current_hash is None
+    assert entity._current_hash is None
+
+    mock_unsub = MagicMock()
+    entity._unsub_track = mock_unsub
+
+    await entity.async_force_render()
+
+    # State cleared
+    assert entity._current_hash is None
+    assert entity._current_image is None
+    # Refresh still triggered
+    mock_unsub.async_refresh.assert_called_once()
+
+
+async def test_force_render_does_nothing_if_no_tracker(hass: HomeAssistant, mock_kroki_client, tmp_path) -> None:
+    """force_render is safe to call before entity is added to hass."""
+    cache = KrokiCache(tmp_path / "test_cache_fr3", max_size=10)
+    entity = _make_entity(hass, mock_kroki_client, cache)
+    entity._unsub_track = None  # not yet added to hass
+
+    # Must not raise
+    await entity.async_force_render()
+    assert entity._current_hash is None

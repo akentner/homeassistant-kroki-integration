@@ -18,17 +18,22 @@ CONF_DEFAULT_ENTITY_ID = "default_entity_id"
 # Options keys (config entry options)
 CONF_CACHE_MAX_SIZE = "cache_max_size"
 CONF_DEFAULT_OUTPUT_FORMAT = "default_output_format"
+CONF_ENABLE_PANEL = "enable_panel"
 
 # Defaults
 DEFAULT_SERVER_URL = "https://kroki.io"
 DEFAULT_OUTPUT_FORMAT = "svg"
 DEFAULT_CACHE_MAX_SIZE = 50
+DEFAULT_ENABLE_PANEL = False
 
 # Content types
 CONTENT_TYPE_MAP = {
     "svg": "image/svg+xml",
     "png": "image/png",
 }
+
+# Service names
+SERVICE_FORCE_RENDER = "force_render"
 
 # Supported diagram types (all Kroki-supported types)
 SUPPORTED_DIAGRAM_TYPES = [

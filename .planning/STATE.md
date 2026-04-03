@@ -1,0 +1,104 @@
+---
+gsd_state_version: 1.0
+milestone: v2.0
+milestone_name: GUI Entity Management
+status: complete
+stopped_at: Milestone v2.0 archived 2026-04-03
+last_updated: "2026-04-03T00:00:00.000Z"
+last_activity: 2026-04-03
+progress:
+  total_phases: 3
+  completed_phases: 3
+  total_plans: 10
+  completed_plans: 10
+  percent: 100
+---
+
+# Project State
+
+## Project Reference
+
+See: .planning/PROJECT.md (updated 2026-04-01)
+
+**Core value:** Kroki diagram entities fully manageable via HA GUI — no YAML editing required
+**Current focus:** Phase 02 — custom-panel
+
+## Current Position
+
+Phase: 3
+Plan: Not started
+Status: Phase complete — ready for verification
+Last activity: 2026-04-03
+
+Progress: [░░░░░░░░░░] 0%
+
+## Performance Metrics
+
+**Velocity:**
+
+- Total plans completed: 0
+- Average duration: -
+- Total execution time: 0 hours
+
+**By Phase:**
+
+| Phase | Plans | Total | Avg/Plan |
+|-------|-------|-------|----------|
+| - | - | - | - |
+
+**Recent Trend:**
+
+- Last 5 plans: none yet
+- Trend: -
+
+*Updated after each plan completion*
+| Phase 01-subentry-crud P02 | 2m 27s | 2 tasks | 2 files |
+| Phase 01-subentry-crud P01 | 208 | 2 tasks | 3 files |
+| Phase 01-subentry-crud P03 | 169 | 1 tasks | 1 files |
+| Phase 01-subentry-crud P04 | 7m 39s | 3 tasks | 3 files |
+| Phase 02-custom-panel P02 | 129s | 1 tasks | 1 files |
+| Phase 02-custom-panel P01 | 231 | 3 tasks | 5 files |
+| Phase 02-custom-panel P03 | 208s | 2 tasks | 1 files |
+| Phase 03-service-extension P03 | 293s | 9 tasks | 6 files |
+
+## Accumulated Context
+
+### Decisions
+
+Decisions are logged in PROJECT.md Key Decisions table.
+Recent decisions affecting current work:
+
+- Pre-roadmap: unique_id for GUI entities = subentry_id (never derived from name — prevents entity registry collisions, Pitfall 1+5)
+- Pre-roadmap: async_forward_entry_setups must be added to __init__.py; async_unload_platforms must mirror it
+- Pre-roadmap: YAML path (async_setup_platform) stays untouched; dual-path coexistence in image.py
+- Pre-roadmap: Panel uses LitElement + textarea (no CodeMirror for MVP); cache_headers=False
+- [Phase 01-subentry-crud]: Template validation uses Template(source, hass).ensure_valid() — rejects syntax errors, accepts entity-reference templates
+- [Phase 01-subentry-crud]: Output format 'Server Default' stores 'server_default' string in subentry data — entity resolves effective format at setup time
+- [Phase 01-subentry-crud]: Patch ConfigEntries class-level methods in tests to isolate __init__.py from image platform (no async_setup_entry yet)
+- [Phase 01-subentry-crud]: async_add_entities called per-entity with config_subentry_id=subentry.subentry_id to link entities to their subentry in HA entity registry
+- [Phase 01-subentry-crud]: from_subentry uses unique_id=subentry.subentry_id (stable ULID) — never derived from name, preventing entity registry collisions with YAML entities (D-08, Pitfall 1)
+- [Phase 01-subentry-crud]: TemplateSelector validates template syntax at schema level via cv.template/ensure_valid — duplicate ensure_valid() in async_step_user handler is dead code
+- [Phase 01-subentry-crud]: mock_config_subentry uses real ConfigSubentry (not MagicMock) to exercise actual subentry attribute access
+- [Phase 01-subentry-crud]: async_add_entities is a sync callback (AddConfigEntryEntitiesCallback returns None); test mock must be regular def, not async def
+- [Phase 02-custom-panel]: Import LitElement from CDN jsdelivr/lit@3 — HA bundled lit not reliably globally exported; no build step required
+- [Phase 02-custom-panel]: panel_custom not added to manifest.json dependencies — built-in HA component, formal dependency causes hass_frontend test failures
+- [Phase 02-custom-panel]: ws_get_entities uses @callback (sync), ws_render uses @websocket_api.async_response (async) per HA WebSocket API contract
+- [Phase 02-custom-panel]: @async_response wraps handler as sync callback — tests use sync call + async_block_till_done to drain background task
+- [Phase 02-custom-panel]: hass.http is None in unit tests — patch.object(hass, 'http', mock_http) required instead of patching on the None attribute
+- [Phase 03-service-extension]: force_render service handler as closure in async_setup capturing hass — idiomatic HA pattern, no class needed
+- [Phase 03-service-extension]: Service dispatches via hass.async_create_task(entity.async_force_render()) — fire-and-forget prevents blocking service handler (D-07)
+
+### Pending Todos
+
+None yet.
+
+### Blockers/Concerns
+
+- Phase 1: Adding async_forward_entry_setups to __init__.py is a structural change — existing YAML entity tests must pass after this change before proceeding.
+- Phase 2: Panel requires custom JS. No build tooling in repo. Vanilla LitElement (already in HA bundle) is the planned approach — confirm before Phase 2 planning.
+
+## Session Continuity
+
+Last session: 2026-04-01T23:59:46.915Z
+Stopped at: Completed 03-service-extension phase (all 3 plans)
+Resume file: None
