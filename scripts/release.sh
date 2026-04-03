@@ -116,6 +116,13 @@ data["version"] = "${NEW_VERSION}"
 path.write_text(json.dumps(data, indent=2) + "\n")
 EOF
 
+MANIFEST_VERSION=$(python3 -c "import json; print(json.load(open('${MANIFEST}'))['version'])")
+if [[ "$MANIFEST_VERSION" != "$NEW_VERSION" ]]; then
+    red "ERROR: Manifest version mismatch after update: expected '${NEW_VERSION}', got '${MANIFEST_VERSION}'."
+    git checkout -- "$MANIFEST"
+    exit 1
+fi
+
 green "Updated ${MANIFEST} → version ${NEW_VERSION}"
 
 # ---------------------------------------------------------------------------
