@@ -1,0 +1,96 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Kroki Server",
+        "description": "Configure the connection to a Kroki diagram server.",
+        "data": {
+          "server_url": "Server URL"
+        },
+        "data_description": {
+          "server_url": "The full URL of the Kroki server, including protocol and port."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Kroki Server",
+        "description": "Change the Kroki server URL for this entry.",
+        "data": {
+          "server_url": "Server URL"
+        },
+        "data_description": {
+          "server_url": "The new URL of the Kroki server."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to the Kroki server. Please check the URL and try again."
+    },
+    "abort": {
+      "already_configured": "This Kroki server is already configured.",
+      "reconfigure_successful": "Server URL updated successfully."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Kroki Options",
+        "description": "Configure options for this Kroki server.",
+        "data": {
+          "default_output_format": "Default output format",
+          "cache_max_size": "Maximum cache size"
+        },
+        "data_description": {
+          "default_output_format": "Default image format for new diagrams (SVG or PNG).",
+          "cache_max_size": "Maximum number of rendered images to keep in the cache (1-500)."
+        }
+      }
+    }
+  },
+  "config_subentries": {
+    "diagram": {
+      "entry_type": "Diagram",
+      "initiate_flow": {
+        "user": "Add Diagram"
+      },
+      "step": {
+        "user": {
+          "title": "Add Diagram",
+          "data": {
+            "name": "Name",
+            "diagram_type": "Diagram Type",
+            "diagram_source": "Diagram Source",
+            "output_format": "Output Format"
+          }
+        },
+        "reconfigure": {
+          "title": "Edit Diagram",
+          "data": {
+            "name": "Name",
+            "diagram_type": "Diagram Type",
+            "diagram_source": "Diagram Source",
+            "output_format": "Output Format"
+          }
+        }
+      },
+      "error": {
+        "invalid_template": "Invalid Jinja2 template: {reason}"
+      }
+    }
+  },
+  "services": {
+    "reload": {
+      "name": "Reload",
+      "description": "Reload Kroki image entities from YAML configuration."
+    },
+    "force_render": {
+      "name": "Force Render",
+      "description": "Forces an immediate re-render of one or more Kroki diagram entities, bypassing the hash-based dedup and disk cache.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "One or more Kroki diagram image entities to force-render."
+        }
+      }
+    }
+  }
+}

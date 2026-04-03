@@ -1,0 +1,96 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Kroki Server",
+        "description": "Verbindung zu einem Kroki-Diagrammserver konfigurieren.",
+        "data": {
+          "server_url": "Server-URL"
+        },
+        "data_description": {
+          "server_url": "Die vollständige URL des Kroki-Servers, inkl. Protokoll und Port."
+        }
+      },
+      "reconfigure": {
+        "title": "Kroki Server neu konfigurieren",
+        "description": "Die Kroki-Server-URL für diesen Eintrag ändern.",
+        "data": {
+          "server_url": "Server-URL"
+        },
+        "data_description": {
+          "server_url": "Die neue URL des Kroki-Servers."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zum Kroki-Server fehlgeschlagen. Bitte URL prüfen und erneut versuchen."
+    },
+    "abort": {
+      "already_configured": "Dieser Kroki-Server ist bereits konfiguriert.",
+      "reconfigure_successful": "Server-URL erfolgreich aktualisiert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Kroki-Optionen",
+        "description": "Optionen für diesen Kroki-Server konfigurieren.",
+        "data": {
+          "default_output_format": "Standard-Ausgabeformat",
+          "cache_max_size": "Maximale Cache-Größe"
+        },
+        "data_description": {
+          "default_output_format": "Standard-Bildformat für neue Diagramme (SVG oder PNG).",
+          "cache_max_size": "Maximale Anzahl gecachter Bilder (1–500)."
+        }
+      }
+    }
+  },
+  "config_subentries": {
+    "diagram": {
+      "entry_type": "Diagramm",
+      "initiate_flow": {
+        "user": "Diagramm hinzufügen"
+      },
+      "step": {
+        "user": {
+          "title": "Diagramm hinzufügen",
+          "data": {
+            "name": "Name",
+            "diagram_type": "Diagrammtyp",
+            "diagram_source": "Diagrammquelle",
+            "output_format": "Ausgabeformat"
+          }
+        },
+        "reconfigure": {
+          "title": "Diagramm bearbeiten",
+          "data": {
+            "name": "Name",
+            "diagram_type": "Diagrammtyp",
+            "diagram_source": "Diagrammquelle",
+            "output_format": "Ausgabeformat"
+          }
+        }
+      },
+      "error": {
+        "invalid_template": "Ungültiges Jinja2-Template: {reason}"
+      }
+    }
+  },
+  "services": {
+    "reload": {
+      "name": "Neu laden",
+      "description": "Kroki-Bild-Entitäten aus der YAML-Konfiguration neu laden."
+    },
+    "force_render": {
+      "name": "Neu rendern",
+      "description": "Erzwingt ein sofortiges Neu-Rendern einer oder mehrerer Kroki-Diagramm-Entitäten, unter Umgehung des Hash-Dedups und des Disk-Caches.",
+      "fields": {
+        "entity_id": {
+          "name": "Entität",
+          "description": "Eine oder mehrere Kroki-Diagramm-Bild-Entitäten zum Neu-Rendern."
+        }
+      }
+    }
+  }
+}
